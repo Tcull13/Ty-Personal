@@ -3,8 +3,10 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/auth-options'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import LinkSubmissionForm from '@/components/dashboard/LinkSubmissionForm'
+import ManualPinForm from '@/components/dashboard/ManualPinForm'
 import PinGallery from '@/components/dashboard/PinGallery'
 import StatsCards from '@/components/dashboard/StatsCards'
+import CreatePinTabs from '@/components/dashboard/CreatePinTabs'
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
@@ -29,10 +31,10 @@ export default async function DashboardPage() {
         {/* Stats */}
         <StatsCards />
 
-        {/* Link Submission Form */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        {/* Pin Creation Options */}
+        <div>
           <h2 className="text-xl font-semibold mb-4">Create New Pin</h2>
-          <LinkSubmissionForm />
+          <CreatePinTabs />
         </div>
 
         {/* Recent Pins */}
