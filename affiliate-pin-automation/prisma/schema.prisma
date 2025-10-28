@@ -1,0 +1,201 @@
+// Prisma schema for Affiliate Pin Automation
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and subscription
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+
+  // Subscription fields
+  stripeCustomerId       String?   @unique
+  stripeSubscriptionId   String?   @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+
+  // Plan tier
+  planTier      String    @default("free") // free, basic, pro, enterprise
+
+  // Pinterest integration
+  pinterestAccessToken  String?
+  pinterestRefreshToken String?
+  pinterestUserId       String?
+  pinterestBoardIds     String[] // Array of connected Pinterest boards
+
+  // Canva integration
+  canvaAccessToken      String?
+  canvaRefreshToken     String?
+
+  // Settings
+  postingFrequency      Int       @default(3) // posts per day
+  autoPostEnabled       Boolean   @default(false)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  affiliateLinks AffiliateLink[]
+  pins          Pin[]
+  analytics     Analytics[]
+}
+
+// NextAuth Account model
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+// NextAuth Session model
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// NextAuth Verification Token model
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Affiliate Link model
+model AffiliateLink {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Amazon product info
+  originalUrl     String
+  affiliateUrl    String    // URL with user's affiliate tag
+  productId       String
+  productTitle    String
+  productPrice    String?
+  productImageUrl String?
+  productCategory String?
+
+  // Status
+  status          String    @default("pending") // pending, processing, active, paused, error
+  errorMessage    String?
+
+  // Pin generation preferences
+  pinStyle        String    @default("auto") // auto, minimal, bold, elegant
+  includePrice    Boolean   @default(true)
+  customText      String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  pins            Pin[]
+  analytics       Analytics[]
+}
+
+// Pin model - generated and posted pins
+model Pin {
+  id                String    @id @default(cuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  affiliateLinkId   String
+  affiliateLink     AffiliateLink @relation(fields: [affiliateLinkId], references: [id], onDelete: Cascade)
+
+  // Pin content
+  title             String
+  description       String
+  imageUrl          String    // Generated pin image URL
+  destinationUrl    String    // Affiliate link
+
+  // Pinterest info
+  pinterestPinId    String?   @unique
+  pinterestBoardId  String?
+
+  // AI Generation info
+  generatedWith     String?   // "openai", "stability", "canva", etc.
+  generationPrompt  String?
+
+  // Status
+  status            String    @default("draft") // draft, scheduled, posted, failed
+  scheduledFor      DateTime?
+  postedAt          DateTime?
+  errorMessage      String?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  analytics         Analytics[]
+}
+
+// Analytics model - track performance
+model Analytics {
+  id                String    @id @default(cuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  affiliateLinkId   String?
+  affiliateLink     AffiliateLink? @relation(fields: [affiliateLinkId], references: [id], onDelete: Cascade)
+
+  pinId             String?
+  pin               Pin?      @relation(fields: [pinId], references: [id], onDelete: Cascade)
+
+  // Metrics
+  eventType         String    // click, impression, save, conversion
+  source            String?   // pinterest, direct, etc.
+
+  // Revenue tracking
+  estimatedEarnings Decimal?  @db.Decimal(10, 2)
+
+  timestamp         DateTime  @default(now())
+
+  // Additional data
+  metadata          Json?
+}
+
+// Scheduled Posts Queue
+model ScheduledPost {
+  id                String    @id @default(cuid())
+  pinId             String
+
+  scheduledFor      DateTime
+  status            String    @default("pending") // pending, processing, completed, failed
+  attempts          Int       @default(0)
+  lastAttempt       DateTime?
+  errorMessage      String?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([scheduledFor, status])
+}
