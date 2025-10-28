@@ -2,6 +2,14 @@
 
 Turn your Amazon affiliate links into Pinterest gold with AI-powered automation.
 
+## 🚀 New Here? Start Here!
+
+**👉 [READ QUICKSTART.md FIRST](./QUICKSTART.md)** - Simple 30-minute guide to get running
+
+This README has all the technical details. If you just want to see it work, check out the Quick Start guide!
+
+---
+
 ## Features
 
 - **Paste & Generate**: Simply paste an Amazon affiliate link and AI generates beautiful Pinterest pins
