@@ -1,14 +1,39 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function SettingsContent() {
   const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
+  const [settingsLoading, setSettingsLoading] = useState(true)
+  const [saved, setSaved] = useState(false)
+
+  const [pinterestConnected, setPinterestConnected] = useState(false)
+  const [autoPostEnabled, setAutoPostEnabled] = useState(false)
+  const [postingFrequency, setPostingFrequency] = useState(3)
+
+  useEffect(() => {
+    fetchSettings()
+  }, [])
+
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/user/settings')
+      if (res.ok) {
+        const data = await res.json()
+        setPinterestConnected(data.pinterestConnected)
+        setAutoPostEnabled(data.autoPostEnabled)
+        setPostingFrequency(data.postingFrequency)
+      }
+    } catch (err) {
+      console.error('Failed to fetch settings:', err)
+    } finally {
+      setSettingsLoading(false)
+    }
+  }
 
   const handleConnectPinterest = () => {
-    // Redirect to Pinterest OAuth
     const redirectUri = `${window.location.origin}/api/auth/pinterest/callback`
     const appId = process.env.NEXT_PUBLIC_PINTEREST_APP_ID || ''
     const scope = 'boards:read,pins:read,pins:write'
@@ -17,6 +42,27 @@ export default function SettingsContent() {
     window.location.href = `https://www.pinterest.com/oauth/?client_id=${appId}&redirect_uri=${encodeURIComponent(
       redirectUri
     )}&response_type=code&scope=${scope}&state=${state}`
+  }
+
+  const handleSaveSettings = async () => {
+    setLoading(true)
+    setSaved(false)
+    try {
+      const res = await fetch('/api/user/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autoPostEnabled, postingFrequency }),
+      })
+
+      if (res.ok) {
+        setSaved(true)
+        setTimeout(() => setSaved(false), 3000)
+      }
+    } catch (err) {
+      console.error('Failed to save settings:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleUpgrade = async (plan: string) => {
@@ -86,21 +132,100 @@ export default function SettingsContent() {
       {/* Pinterest Integration */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">Pinterest Integration</h2>
-        <p className="text-gray-600 mb-4">
-          Connect your Pinterest account to enable auto-posting
-        </p>
 
-        <button
-          onClick={handleConnectPinterest}
-          disabled={loading}
-          className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50"
-        >
-          Connect Pinterest Account
-        </button>
+        {settingsLoading ? (
+          <div className="flex items-center gap-2 text-gray-500">
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-600 border-t-transparent"></div>
+            Loading...
+          </div>
+        ) : pinterestConnected ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-green-600">
+              <span className="text-xl">✅</span>
+              <span className="font-semibold">Pinterest account connected</span>
+            </div>
+            <button
+              onClick={handleConnectPinterest}
+              className="text-sm text-gray-500 hover:text-gray-700 underline"
+            >
+              Reconnect with different account
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-gray-600">
+              Connect your Pinterest account to enable auto-posting
+            </p>
+            <button
+              onClick={handleConnectPinterest}
+              disabled={loading}
+              className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50"
+            >
+              Connect Pinterest Account
+            </button>
+            {!process.env.NEXT_PUBLIC_PINTEREST_APP_ID && (
+              <p className="text-sm text-amber-600">
+                Note: Pinterest App ID not configured. Add NEXT_PUBLIC_PINTEREST_APP_ID to your environment variables.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
 
-        <p className="text-sm text-gray-500 mt-3">
-          Note: You'll need Pinterest API credentials configured in your environment
-        </p>
+      {/* Posting Settings */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-4">Posting Settings</h2>
+        <div className="space-y-5">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div
+              onClick={() => setAutoPostEnabled(!autoPostEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                autoPostEnabled ? 'bg-purple-600' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                  autoPostEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </div>
+            <div>
+              <span className="font-medium">Enable auto-posting</span>
+              <p className="text-sm text-gray-500">
+                Automatically post pins to Pinterest on a schedule
+              </p>
+            </div>
+          </label>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Posting Frequency
+            </label>
+            <select
+              value={postingFrequency}
+              onChange={(e) => setPostingFrequency(Number(e.target.value))}
+              className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value={1}>1 pin per day</option>
+              <option value={3}>3 pins per day</option>
+              <option value={5}>5 pins per day</option>
+              <option value={10}>10 pins per day</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleSaveSettings}
+              disabled={loading}
+              className="bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50"
+            >
+              {loading ? 'Saving...' : 'Save Settings'}
+            </button>
+            {saved && (
+              <span className="text-green-600 font-medium">Settings saved!</span>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Subscription Management */}
@@ -173,32 +298,6 @@ export default function SettingsContent() {
             </p>
           </div>
         )}
-      </div>
-
-      {/* Posting Settings */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Posting Settings</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" />
-              <span>Enable auto-posting (coming soon)</span>
-            </label>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Posting Frequency (coming soon)
-            </label>
-            <select
-              disabled
-              className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg opacity-50"
-            >
-              <option>1 pin per day</option>
-              <option>3 pins per day</option>
-              <option>5 pins per day</option>
-            </select>
-          </div>
-        </div>
       </div>
     </div>
   )
