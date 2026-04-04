@@ -11,12 +11,12 @@ export const STATS = [
 ];
 
 export const VIDEOS = [
-  { platform: "tiktok" as const, videoId: "PLACEHOLDER_1" },
-  { platform: "tiktok" as const, videoId: "PLACEHOLDER_2" },
-  { platform: "tiktok" as const, videoId: "PLACEHOLDER_3" },
-  { platform: "tiktok" as const, videoId: "PLACEHOLDER_4" },
-  { platform: "tiktok" as const, videoId: "PLACEHOLDER_5" },
-  { platform: "tiktok" as const, videoId: "PLACEHOLDER_6" },
+  { platform: "tiktok" as const, videoId: "7518030863796358455" },
+  { platform: "tiktok" as const, videoId: "7516554430444096782" },
+  { platform: "tiktok" as const, videoId: "7517646170219400462" },
+  { platform: "tiktok" as const, videoId: "7516910599624772919" },
+  { platform: "tiktok" as const, videoId: "7494271132669988142" },
+  { platform: "tiktok" as const, videoId: "7493724965997448491" },
 ];
 
 export const SERVICES = [
