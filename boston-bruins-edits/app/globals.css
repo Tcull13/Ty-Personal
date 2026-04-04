@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --bruins-black: #000000;
+  --bruins-gold: #FCB514;
+  --bruins-gold-dark: #d49a00;
+  --bruins-white: #ffffff;
+  --bruins-gray: #111111;
+  --bruins-gray-light: #1a1a1a;
+}
+
+@theme inline {
+  --color-bruins-black: var(--bruins-black);
+  --color-bruins-gold: var(--bruins-gold);
+  --color-bruins-gold-dark: var(--bruins-gold-dark);
+  --color-bruins-white: var(--bruins-white);
+  --color-bruins-gray: var(--bruins-gray);
+  --color-bruins-gray-light: var(--bruins-gray-light);
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SF Mono", "Fira Code", monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bruins-black);
+  color: var(--bruins-white);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Ice particles for hero */
+@keyframes float-up {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(252, 181, 20, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(252, 181, 20, 0.6);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bruins-gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bruins-gold-dark);
+}
