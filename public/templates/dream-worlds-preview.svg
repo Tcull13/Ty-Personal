@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="none">
+  <defs>
+    <linearGradient id="dwp-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0D1B2A"/>
+      <stop offset="40%" stop-color="#1A237E"/>
+      <stop offset="100%" stop-color="#B39DDB"/>
+    </linearGradient>
+    <radialGradient id="moon-glow">
+      <stop offset="0%" stop-color="#FFD54F" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#FFD54F" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="300" rx="12" fill="url(#dwp-bg)"/>
+  <!-- Giant moon -->
+  <circle cx="300" cy="80" r="60" fill="#FFD54F" opacity="0.9"/>
+  <circle cx="300" cy="80" r="80" fill="url(#moon-glow)"/>
+  <circle cx="285" cy="70" r="12" fill="#1A237E" opacity="0.15"/>
+  <circle cx="310" cy="85" r="8" fill="#1A237E" opacity="0.1"/>
+  <circle cx="295" cy="90" r="5" fill="#1A237E" opacity="0.12"/>
+  <circle cx="280" cy="82" r="3" fill="#1A237E" opacity="0.08"/>
+  <!-- Stars -->
+  <g fill="#F8BBD0" opacity="0.6">
+    <circle cx="20" cy="30" r="2"/><circle cx="60" cy="15" r="1.5"/>
+    <circle cx="100" cy="45" r="1"/><circle cx="140" cy="20" r="2.5"/>
+    <circle cx="180" cy="55" r="1.5"/><circle cx="220" cy="25" r="2"/>
+    <circle cx="50" cy="60" r="1"/><circle cx="160" cy="70" r="1.5"/>
+    <circle cx="380" cy="30" r="2"/><circle cx="350" cy="15" r="1.5"/>
+  </g>
+  <g fill="#A5D6A7" opacity="0.5">
+    <circle cx="40" cy="50" r="1.2"/><circle cx="130" cy="35" r="0.8"/>
+    <circle cx="240" cy="40" r="1"/><circle cx="370" cy="55" r="1.3"/>
+  </g>
+  <g fill="#FFD54F" opacity="0.4">
+    <circle cx="80" cy="40" r="1"/><circle cx="190" cy="30" r="1.5"/>
+    <circle cx="330" cy="45" r="1"/>
+  </g>
+  <!-- Sparkle crosses -->
+  <g stroke="#FFD54F" stroke-width="0.8" opacity="0.5">
+    <path d="M50 35 L56 41 M56 35 L50 41"/>
+    <path d="M150 25 L155 30 M155 25 L150 30"/>
+    <path d="M250 15 L254 19 M254 15 L250 19"/>
+    <path d="M340 50 L344 54 M344 50 L340 54"/>
+  </g>
+  <!-- Floating Island 1 (large, foreground) -->
+  <path d="M40 220 C40 200 80 180 140 180 C200 180 240 200 240 220 C240 240 200 260 140 260 C80 260 40 240 40 220Z" fill="#7B6FB0" opacity="0.4"/>
+  <ellipse cx="140" cy="220" rx="100" ry="40" fill="#6B5F9E" opacity="0.3"/>
+  <!-- Grass on top of island -->
+  <path d="M50 215 C60 205 80 200 100 198 C120 196 140 198 160 202 C180 206 200 210 230 218" fill="#A5D6A7" opacity="0.3"/>
+  <!-- Trees on island 1 -->
+  <g stroke="#A5D6A7" stroke-width="2" fill="none" opacity="0.6">
+    <path d="M120 215 C120 195 110 188 100 185"/>
+    <path d="M120 215 C120 195 130 188 140 185"/>
+    <path d="M120 215 C120 195 120 185 120 180"/>
+  </g>
+  <g stroke="#C8E6C9" stroke-width="1.5" fill="none" opacity="0.4">
+    <path d="M160 210 C160 195 152 190 145 188"/>
+    <path d="M160 210 C160 195 168 190 175 188"/>
+    <path d="M160 210 L160 195"/>
+  </g>
+  <!-- Waterfall from island -->
+  <g stroke="#90CAF9" stroke-width="1.5" opacity="0.4">
+    <path d="M130 260 C128 270 126 280 124 300"/>
+    <path d="M134 260 C133 270 132 280 130 300"/>
+    <path d="M138 260 C138 270 136 280 135 300"/>
+  </g>
+  <!-- Floating Island 2 (small, background) -->
+  <path d="M260 160 C260 148 280 140 310 140 C340 140 360 148 360 160 C360 172 340 180 310 180 C280 180 260 172 260 160Z" fill="#9C8FD0" opacity="0.25"/>
+  <!-- Floating crystals -->
+  <g fill="#F8BBD0" opacity="0.4">
+    <polygon points="310,150 314,140 318,150"/>
+    <polygon points="290,155 293,148 296,155"/>
+  </g>
+  <g fill="#A5D6A7" opacity="0.3">
+    <polygon points="330,148 333,142 336,148"/>
+  </g>
+  <!-- Floating sparkles/magic dust -->
+  <g fill="#FFD54F" opacity="0.3">
+    <circle cx="60" cy="180" r="1.5"/>
+    <circle cx="100" cy="160" r="1"/>
+    <circle cx="170" cy="190" r="2"/>
+    <circle cx="200" cy="170" r="1.5"/>
+    <circle cx="240" cy="140" r="1"/>
+    <circle cx="350" cy="120" r="1.5"/>
+    <circle cx="280" cy="200" r="1"/>
+    <circle cx="40" cy="150" r="1.5"/>
+  </g>
+  <!-- Mist at bottom -->
+  <ellipse cx="200" cy="290" rx="200" ry="20" fill="#B39DDB" opacity="0.15"/>
+  <ellipse cx="160" cy="285" rx="140" ry="10" fill="#C8B8E8" opacity="0.08"/>
+</svg>

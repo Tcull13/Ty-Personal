@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="none">
+  <defs>
+    <linearGradient id="mcp-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#050510"/>
+      <stop offset="40%" stop-color="#0A0A1A"/>
+      <stop offset="100%" stop-color="#1A1A2E"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" rx="12" fill="url(#mcp-bg)"/>
+  <!-- City skyline -->
+  <g fill="#0D0D20" stroke="#00BFFF" stroke-width="0.5" opacity="0.8">
+    <rect x="10" y="100" width="30" height="180"/>
+    <rect x="45" y="60" width="25" height="220"/>
+    <rect x="75" y="120" width="20" height="160"/>
+    <rect x="100" y="40" width="40" height="240"/>
+    <rect x="145" y="80" width="25" height="200"/>
+    <rect x="175" y="50" width="35" height="230"/>
+    <rect x="215" y="90" width="20" height="190"/>
+    <rect x="240" y="30" width="30" height="250"/>
+    <rect x="275" y="70" width="25" height="210"/>
+    <rect x="305" y="110" width="30" height="170"/>
+    <rect x="340" y="55" width="25" height="225"/>
+    <rect x="370" y="90" width="25" height="190"/>
+  </g>
+  <!-- Tallest building with antenna -->
+  <line x1="255" y1="30" x2="255" y2="10" stroke="#00BFFF" stroke-width="1" opacity="0.5"/>
+  <circle cx="255" cy="8" r="2" fill="#DC143C" opacity="0.8"/>
+  <!-- Neon sign on building -->
+  <rect x="110" y="100" width="20" height="6" rx="1" fill="#FF00FF" opacity="0.5"/>
+  <rect x="280" y="80" width="15" height="5" rx="1" fill="#39FF14" opacity="0.4"/>
+  <rect x="185" y="120" width="15" height="5" rx="1" fill="#00BFFF" opacity="0.5"/>
+  <!-- Windows -->
+  <g fill="#FFD700" opacity="0.3">
+    <rect x="15" y="110" width="4" height="3"/>
+    <rect x="15" y="120" width="4" height="3"/>
+    <rect x="22" y="115" width="4" height="3"/>
+    <rect x="50" y="70" width="4" height="3"/>
+    <rect x="50" y="85" width="4" height="3"/>
+    <rect x="55" y="100" width="4" height="3"/>
+    <rect x="108" y="50" width="4" height="3"/>
+    <rect x="115" y="65" width="4" height="3"/>
+    <rect x="120" y="80" width="4" height="3"/>
+    <rect x="108" y="140" width="4" height="3"/>
+    <rect x="180" y="60" width="4" height="3"/>
+    <rect x="190" y="75" width="4" height="3"/>
+    <rect x="185" y="145" width="4" height="3"/>
+    <rect x="248" y="40" width="4" height="3"/>
+    <rect x="255" y="55" width="4" height="3"/>
+    <rect x="248" y="100" width="4" height="3"/>
+    <rect x="348" y="65" width="4" height="3"/>
+    <rect x="355" y="85" width="4" height="3"/>
+    <rect x="348" y="140" width="4" height="3"/>
+  </g>
+  <!-- Cyan windows -->
+  <g fill="#00BFFF" opacity="0.25">
+    <rect x="25" y="130" width="3" height="3"/>
+    <rect x="62" y="75" width="3" height="3"/>
+    <rect x="130" y="90" width="3" height="3"/>
+    <rect x="198" y="65" width="3" height="3"/>
+    <rect x="265" y="45" width="3" height="3"/>
+    <rect x="360" y="70" width="3" height="3"/>
+  </g>
+  <!-- Magenta windows -->
+  <g fill="#FF00FF" opacity="0.2">
+    <rect x="18" y="140" width="3" height="3"/>
+    <rect x="115" y="120" width="3" height="3"/>
+    <rect x="195" y="90" width="3" height="3"/>
+    <rect x="260" y="130" width="3" height="3"/>
+  </g>
+  <!-- Flying vehicle -->
+  <ellipse cx="160" cy="30" rx="15" ry="4" fill="#00BFFF" opacity="0.3"/>
+  <ellipse cx="160" cy="30" rx="15" ry="4" stroke="#00BFFF" stroke-width="0.5" fill="none" opacity="0.5"/>
+  <circle cx="152" cy="30" r="2" fill="#DC143C" opacity="0.6"/>
+  <circle cx="168" cy="30" r="2" fill="#DC143C" opacity="0.6"/>
+  <!-- Ground / Street -->
+  <rect x="0" y="270" width="400" height="30" fill="#0D0D20"/>
+  <!-- Road markings -->
+  <g stroke="#FFD700" stroke-width="1" opacity="0.15">
+    <line x1="0" y1="285" x2="400" y2="285"/>
+  </g>
+  <g stroke="#FFD700" stroke-width="0.5" opacity="0.1" stroke-dasharray="20,15">
+    <line x1="0" y1="285" x2="400" y2="285"/>
+  </g>
+  <!-- Rain -->
+  <g stroke="#00BFFF" stroke-width="0.5" opacity="0.2">
+    <line x1="20" y1="0" x2="15" y2="40"/><line x1="45" y1="10" x2="40" y2="50"/>
+    <line x1="80" y1="5" x2="75" y2="45"/><line x1="110" y1="15" x2="105" y2="55"/>
+    <line x1="150" y1="0" x2="145" y2="40"/><line x1="180" y1="10" x2="175" y2="50"/>
+    <line x1="220" y1="5" x2="215" y2="45"/><line x1="260" y1="15" x2="255" y2="55"/>
+    <line x1="300" y1="0" x2="295" y2="40"/><line x1="340" y1="10" x2="335" y2="50"/>
+    <line x1="370" y1="5" x2="365" y2="45"/><line x1="55" y1="25" x2="50" y2="65"/>
+    <line x1="130" y1="30" x2="125" y2="70"/><line x1="200" y1="20" x2="195" y2="60"/>
+    <line x1="280" y1="25" x2="275" y2="65"/><line x1="350" y1="30" x2="345" y2="70"/>
+  </g>
+  <!-- Wet ground reflections -->
+  <g fill="#00BFFF" opacity="0.06">
+    <rect x="100" y="275" width="40" height="20"/>
+    <rect x="175" y="275" width="35" height="20"/>
+    <rect x="240" y="275" width="30" height="20"/>
+  </g>
+  <g fill="#FF00FF" opacity="0.04">
+    <rect x="110" y="278" width="20" height="15"/>
+    <rect x="280" y="278" width="15" height="15"/>
+  </g>
+  <!-- Street light glow -->
+  <circle cx="200" cy="270" r="40" fill="#FFD700" opacity="0.03"/>
+  <circle cx="300" cy="270" r="30" fill="#00BFFF" opacity="0.03"/>
+  <!-- Sidewalk -->
+  <rect x="0" y="265" width="400" height="5" fill="#1A1A2E"/>
+</svg>

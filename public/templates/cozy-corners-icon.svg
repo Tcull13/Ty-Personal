@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="cc-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5DEB3"/>
+      <stop offset="100%" stop-color="#E2725B"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="8" fill="url(#cc-bg)"/>
+  <!-- Window -->
+  <rect x="12" y="8" width="40" height="32" rx="2" fill="#8FBC8F" opacity="0.4"/>
+  <rect x="14" y="10" width="36" height="28" rx="1" fill="#C9C9FF" opacity="0.3"/>
+  <!-- Rain on window -->
+  <g stroke="#87CEEB" stroke-width="0.5" opacity="0.5">
+    <line x1="18" y1="10" x2="16" y2="22"/><line x1="22" y1="12" x2="20" y2="28"/>
+    <line x1="28" y1="10" x2="26" y2="24"/><line x1="34" y1="14" x2="32" y2="30"/>
+    <line x1="40" y1="11" x2="38" y2="26"/><line x1="46" y1="13" x2="44" y2="28"/>
+  </g>
+  <!-- Window cross -->
+  <line x1="32" y1="8" x2="32" y2="40" stroke="#8B7355" stroke-width="1" opacity="0.5"/>
+  <line x1="12" y1="24" x2="52" y2="24" stroke="#8B7355" stroke-width="1" opacity="0.5"/>
+  <!-- Teacup -->
+  <path d="M22 44 C22 48 28 52 32 52 C36 52 42 48 42 44" fill="#FFFDD0" stroke="#E2725B" stroke-width="1"/>
+  <path d="M42 46 C46 46 48 44 48 42 C48 40 46 38 42 38" fill="none" stroke="#E2725B" stroke-width="1"/>
+  <!-- Tea liquid -->
+  <ellipse cx="32" cy="44" rx="9" ry="3" fill="#D4A574" opacity="0.6"/>
+  <!-- Steam -->
+  <g stroke="#FFFDD0" stroke-width="0.8" fill="none" opacity="0.5">
+    <path d="M28 38 C26 34 30 30 28 26"/>
+    <path d="M34 40 C32 36 36 32 34 28"/>
+  </g>
+  <!-- Cat -->
+  <ellipse cx="36" cy="56" rx="8" ry="5" fill="#D8A7B9" opacity="0.7"/>
+  <circle cx="34" cy="53" r="3" fill="#D8A7B9" opacity="0.7"/>
+  <circle cx="33" cy="52" r="0.8" fill="#8FBC8F" opacity="0.8"/>
+  <circle cx="35" cy="52" r="0.8" fill="#8FBC8F" opacity="0.8"/>
+  <!-- Cat tail -->
+  <path d="M44 56 C50 52 52 48 48 46" stroke="#D8A7B9" stroke-width="2" fill="none" opacity="0.7"/>
+</svg>

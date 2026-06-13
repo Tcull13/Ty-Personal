@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="sp-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2C1810"/>
+      <stop offset="100%" stop-color="#8B7355"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="8" fill="url(#sp-bg)"/>
+  <!-- Gothic arch window -->
+  <path d="M16 40 L16 20 C16 14 22 10 32 10 C42 10 48 14 48 20 L48 40Z" fill="#36454F" stroke="#D4AF37" stroke-width="1"/>
+  <!-- Window glow -->
+  <path d="M20 38 L20 22 C20 17 25 14 32 14 C39 14 44 17 44 22 L44 38Z" fill="#FFD700" opacity="0.15"/>
+  <!-- Bookshelf -->
+  <rect x="8" y="42" width="48" height="20" rx="1" fill="#5C3A21"/>
+  <line x1="8" y1="50" x2="56" y2="50" stroke="#3E2213" stroke-width="1"/>
+  <line x1="8" y1="56" x2="56" y2="56" stroke="#3E2213" stroke-width="1"/>
+  <!-- Books -->
+  <rect x="12" y="44" width="4" height="6" fill="#800020" rx="0.5"/>
+  <rect x="18" y="44" width="3" height="6" fill="#556B2F" rx="0.5"/>
+  <rect x="23" y="44" width="5" height="6" fill="#D4AF37" rx="0.5"/>
+  <rect x="30" y="44" width="3" height="6" fill="#8B7355" rx="0.5"/>
+  <rect x="12" y="52" width="5" height="4" fill="#556B2F" rx="0.5"/>
+  <rect x="19" y="52" width="4" height="4" fill="#800020" rx="0.5"/>
+  <rect x="25" y="52" width="3" height="4" fill="#D4AF37" rx="0.5"/>
+  <!-- Candle -->
+  <rect x="30" y="36" width="3" height="6" fill="#FFFDD0" rx="0.5"/>
+  <ellipse cx="31.5" cy="34" rx="2" ry="3" fill="#FF8C00" opacity="0.8"/>
+  <ellipse cx="31.5" cy="33" rx="1" ry="2" fill="#FFD700" opacity="0.9"/>
+  <!-- Candle glow -->
+  <circle cx="31.5" cy="34" r="6" fill="#FFD700" opacity="0.08"/>
+</svg>
