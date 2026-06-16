@@ -1,0 +1,48 @@
+{
+  "batch": "neon-nights",
+  "batch_name": "Neon Nights",
+  "generated_at": null,
+  "aspect_ratio": "2:3",
+  "products": [
+    {
+      "slug": "neon-cloud-sign",
+      "name": "LED Cloud Neon Sign",
+      "category": "Neon Signs",
+      "seed": 20001,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_NEON_CLOUD]",
+      "pinterest_caption": "Transform your space with this dreamy LED cloud neon sign ☁️✨ The perfect vaporwave bedroom decor piece. Soft pink glow, retro vibes, pure nostalgia. #Vaporwave #BedroomDecor #NeonSign #Synthwave"
+    },
+    {
+      "slug": "nagai-posters",
+      "name": "Hiroshi Nagai Lofi Art Posters (Set of 9)",
+      "category": "Wall Art",
+      "seed": 20002,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_NAGAI_POSTERS]",
+      "pinterest_caption": "Bring calm vibes to your walls with this set of 9 Hiroshi Nagai art posters 🏝️🌴 Retro pastel scenes, palm trees, and vintage architecture. The ultimate lofi bedroom aesthetic. #Lofi #Vaporwave #PosterSet #RoomDecor"
+    },
+    {
+      "slug": "great-wave-neon",
+      "name": "Great Wave Off Kanagawa LED Neon Sign",
+      "category": "Neon Signs",
+      "seed": 20003,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_GREAT_WAVE_NEON]",
+      "pinterest_caption": "The Great Wave reimagined in neon 🌊💙 This stunning LED neon sign brings iconic Japanese art into the future. Moody blue glow, vaporwave aesthetic. #NeonSign #Vaporwave #JapaneseArt #WallDecor"
+    },
+    {
+      "slug": "synthwave-mousepad",
+      "name": "Retro Synthwave Gaming Mouse Pad (Large)",
+      "category": "Gaming",
+      "seed": 20004,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_SYNTHWAVE_MOUSEPAD]",
+      "pinterest_caption": "Level up your desk setup with this retro synthwave gaming mouse pad 🕹️🌅 Neon grids, palm trees, and sunset gradients. The ultimate gamer aesthetic. #GamingSetup #Synthwave #DeskSetup #Vaporwave"
+    },
+    {
+      "slug": "custom-neon-sign",
+      "name": "Multi-Colored Custom Vaporwave Neon Sign",
+      "category": "Neon Signs",
+      "seed": 20005,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_CUSTOM_NEON_SIGN]",
+      "pinterest_caption": "Make it yours with a custom multi-colored neon sign 💗💙💜💚 Each letter glows in a different hue. The ultimate personalized vaporwave room statement piece. #CustomNeon #Vaporwave #RoomGoals #NeonSigns"
+    }
+  ]
+}

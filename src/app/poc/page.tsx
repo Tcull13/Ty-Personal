@@ -1,353 +1,429 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { BATCHES } from "@/lib/scaper-config";
 
-// 6-panel "Neon Nights" comic prompts based on the research report
-// Using vaporwave/synthwave aesthetic with a simple narrative arc
-const NEON_NIGHTS_PROMPTS = [
-  {
-    panel: "Panel 1 — Establishing Shot",
-    prompt:
-      "Neon-lit cyberpunk city street at night, rain-slicked pavement reflects purple and pink neon signs, retro-future synthwave aesthetic, chrome buildings with grid patterns, cinematic composition, vaporwave atmosphere, comic book style --ar 3:2",
-  },
-  {
-    panel: "Panel 2 — Protagonist Intro",
-    prompt:
-      "Close-up of a silhouette figure in a chrome trenchcoat standing under a glowing neon sign, purple and cyan light casting dramatic shadows, synthwave vaporwave aesthetic, comic book panel style, cinematic lighting --ar 3:2",
-  },
-  {
-    panel: "Panel 3 — Action Beat",
-    prompt:
-      "Dynamic action scene in a neon-lit alley, electric blue and hot pink reflections on wet surfaces, retro-future cyberpunk aesthetic, comic book panel composition, dramatic motion --ar 3:2",
-  },
-  {
-    panel: "Panel 4 — Dialogue / Confrontation",
-    prompt:
-      "Two characters face off in a dimly lit bar with neon tube lighting, green and magenta ambiance, synthwave vaporwave decor, comic book panel perspective, cinematic angle --ar 3:2",
-  },
-  {
-    panel: "Panel 5 — Chase Sequence",
-    prompt:
-      "Fast-paced chase through a neon-grid cityscape at night, motion blur on glowing signs, cyberpunk aesthetic with retro-wave color palette, comic book dynamic panel style --ar 3:2",
-  },
-  {
-    panel: "Panel 6 — Climax / Reveal",
-    prompt:
-      "Wide shot of a rooftop overlooking a neon-drenched city, single figure at the edge bathed in purple and gold light, synthwave sunset sky with grid pattern overlay, epic comic book splash panel --ar 3:2",
-  },
-];
+type ScapeResult = {
+  product_slug: string;
+  product_name: string;
+  category: string;
+  batch: string;
+  images: string[];
+  pinterest_caption: string;
+  affiliate_link: string;
+  seed: number;
+  status: string;
+};
 
-export default function POCPage() {
-  const [results, setResults] = useState<any[]>([]);
+export default function VibeVaultPage() {
+  const [selectedBatch, setSelectedBatch] = useState("neon-nights");
+  const [results, setResults] = useState<ScapeResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [benchmarks, setBenchmarks] = useState<any>(null);
-  const [selectedPrompt, setSelectedPrompt] = useState(0);
+  const [activeTab, setActiveTab] = useState<"preview" | "scaper">("preview");
 
-  async function generateSinglePanel(index: number) {
+  const batch = BATCHES[selectedBatch];
+
+  async function generateBatch() {
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch("/api/generate", {
+      const res = await fetch("/api/scaper/batch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: NEON_NIGHTS_PROMPTS[index].prompt,
-          aspect_ratio: "3:2",
-          num_outputs: 1,
-          output_format: "webp",
-        }),
+        body: JSON.stringify({ batch: selectedBatch, mode: "generate" }),
       });
 
       const data = await res.json();
-
-      if (!data.success) {
-        throw new Error(data.error || "Generation failed");
-      }
-
-      return data;
+      if (!data.success) throw new Error(data.error);
+      setResults(data.results);
     } catch (err: any) {
       setError(err.message);
-      return null;
     } finally {
       setLoading(false);
     }
   }
 
-  async function generateAllPanels() {
-    setLoading(true);
-    setError(null);
-    setResults([]);
-    setBenchmarks(null);
-
-    const allResults: any[] = [];
-    let totalDuration = 0;
-
-    for (let i = 0; i < NEON_NIGHTS_PROMPTS.length; i++) {
-      const data = await generateSinglePanel(i);
-      if (data) {
-        allResults.push({
-          panel: NEON_NIGHTS_PROMPTS[i].panel,
-          index: i + 1,
-          images: data.images,
-          metadata: data.metadata,
-        });
-        totalDuration += data.metadata?.duration_ms || 0;
-      } else {
-        allResults.push({
-          panel: NEON_NIGHTS_PROMPTS[i].panel,
-          index: i + 1,
-          images: [],
-          metadata: null,
-          error: "Failed to generate",
-        });
-      }
-    }
-
-    setResults(allResults);
-    setBenchmarks({
-      total_panels: NEON_NIGHTS_PROMPTS.length,
-      generated: allResults.filter((r) => r.images.length > 0).length,
-      failed: allResults.filter((r) => r.images.length === 0).length,
-      total_duration_ms: totalDuration,
-      total_duration_seconds: (totalDuration / 1000).toFixed(1),
-      avg_duration_per_panel_ms: Math.round(
-        totalDuration / NEON_NIGHTS_PROMPTS.length
-      ),
-      estimated_total_cost_usd: (allResults.filter((r) => r.images.length > 0)
-        .length * 0.05).toFixed(2),
-      estimated_cost_per_page: (6 * 0.05).toFixed(2), // 6 panels per page
-    });
-  }
-
-  async function generateSingle() {
+  async function generateProduct(productSlug: string) {
     setLoading(true);
     setError(null);
 
-    const data = await generateSinglePanel(selectedPrompt);
-    if (data) {
-      setResults([
-        {
-          panel: NEON_NIGHTS_PROMPTS[selectedPrompt].panel,
-          index: selectedPrompt + 1,
-          images: data.images,
-          metadata: data.metadata,
-        },
-      ]);
+    try {
+      const res = await fetch("/api/scaper/batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          batch: selectedBatch,
+          product: productSlug,
+          mode: "generate",
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      // Merge or replace single product result
+      setResults((prev) => {
+        const filtered = prev.filter(
+          (r) => r.product_slug !== productSlug
+        );
+        return [...filtered, ...data.results];
+      });
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   }
+
+  const batchInfo = BATCHES[selectedBatch];
 
   return (
-    <div className="min-h-dvh px-6 py-24">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 mb-6 hover:opacity-80 transition-opacity"
-          >
+    <div className="min-h-dvh">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/50 border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-vibe-purple via-vibe-pink to-vibe-cyan flex items-center justify-center">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2.5"
-              >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
                 <path d="M12 3L20 9V15L12 21L4 15V9L12 3Z" />
                 <line x1="12" y1="3" x2="12" y2="21" />
                 <line x1="4" y1="9" x2="20" y2="9" />
               </svg>
             </div>
-            <span className="font-display font-bold text-lg">VibeScapes</span>
+            <span className="font-display font-bold text-lg">VibeVault</span>
           </Link>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold mb-3">
-            Flux Pro{" "}
-            <span className="gradient-text">Proof-of-Concept</span>
-          </h1>
-          <p className="text-muted max-w-2xl mx-auto">
-            Testing Flux Pro via Replicate API for the{" "}
-            <span className="text-white font-medium">&quot;Neon Nights&quot;</span>{" "}
-            comic template. This generates 6 panels of a vaporwave/synthwave
-            comic story to benchmark quality, latency, and cost.
-          </p>
-        </div>
-
-        {/* Setup status */}
-        <div className="mb-8 p-4 rounded-xl bg-surface border border-white/[0.06] text-sm">
-          <p className="text-muted">
-            <strong className="text-white">Setup required:</strong> Add your
-            Replicate API token to{" "}
-            <code className="text-vibe-cyan bg-white/5 px-1.5 py-0.5 rounded">
-              .env.local
-            </code>{" "}
-            as <code className="text-vibe-cyan bg-white/5 px-1.5 py-0.5 rounded">
-              REPLICATE_API_TOKEN
-            </code>.
-            <br />
-            Get one at{" "}
-            <a
-              href="https://replicate.com/account/api-tokens"
-              className="text-vibe-purple hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              replicate.com/account/api-tokens
-            </a>
-          </p>
-        </div>
-
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="flex-1">
-            <label className="block text-sm text-muted mb-2">
-              Test single panel:
-            </label>
-            <div className="flex gap-2">
-              <select
-                value={selectedPrompt}
-                onChange={(e) => setSelectedPrompt(Number(e.target.value))}
-                className="flex-1 px-4 py-2 rounded-lg bg-surface border border-white/10 text-white text-sm focus:outline-none focus:border-vibe-purple/50"
-              >
-                {NEON_NIGHTS_PROMPTS.map((p, i) => (
-                  <option key={i} value={i}>
-                    {p.panel}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={generateSingle}
-                disabled={loading}
-                className="px-5 py-2 rounded-full bg-white text-black font-medium text-sm hover:bg-white/90 transition-all disabled:opacity-50"
-              >
-                {loading ? "Generating..." : "Generate"}
-              </button>
-            </div>
-          </div>
-          <div className="flex items-end">
+          <div className="flex items-center gap-4 text-sm">
             <button
-              onClick={generateAllPanels}
-              disabled={loading}
-              className="px-6 py-2 rounded-full bg-gradient-to-r from-vibe-purple to-vibe-pink text-white font-medium text-sm hover:opacity-90 transition-all disabled:opacity-50"
+              onClick={() => setActiveTab("preview")}
+              className={`transition-colors ${
+                activeTab === "preview" ? "text-white" : "text-muted hover:text-white"
+              }`}
             >
-              {loading
-                ? "Generating All 6 Panels..."
-                : "Generate Full 6-Panel Page"}
+              Preview
             </button>
+            <button
+              onClick={() => setActiveTab("scaper")}
+              className={`transition-colors ${
+                activeTab === "scaper" ? "text-white" : "text-muted hover:text-white"
+              }`}
+            >
+              Scaper
+            </button>
+            <Link
+              href="/"
+              className="px-4 py-1.5 rounded-full bg-white/10 text-white text-xs hover:bg-white/20 transition-all"
+            >
+              Exit
+            </Link>
           </div>
         </div>
+      </nav>
 
-        {/* Error */}
-        {error && (
-          <div className="mb-8 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-            {error}
-          </div>
-        )}
+      {activeTab === "preview" ? (
+        <div className="pt-24 px-6 pb-16">
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <h1 className="font-display text-3xl sm:text-4xl font-bold mb-3">
+                VibeVault{" "}
+                <span className="gradient-text">Product Scapes</span>
+              </h1>
+              <p className="text-muted max-w-2xl mx-auto">
+                AI-generated atmospheric backgrounds for affiliate products.
+                Each "Scape" pairs a product with a curated aesthetic scene.
+              </p>
+            </div>
 
-        {/* Benchmarks */}
-        {benchmarks && (
-          <div className="mb-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {[
-              { label: "Total Panels", value: benchmarks.total_panels },
-              { label: "Generated", value: benchmarks.generated },
-              { label: "Failed", value: benchmarks.failed },
-              {
-                label: "Total Time",
-                value: `${benchmarks.total_duration_seconds}s`,
-              },
-              {
-                label: "Avg/Panel",
-                value: `${(benchmarks.avg_duration_per_panel_ms / 1000).toFixed(1)}s`,
-              },
-              {
-                label: "Est. Cost/Page",
-                value: `$${benchmarks.estimated_cost_per_page}`,
-              },
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className="p-3 rounded-xl bg-surface border border-white/[0.06] text-center"
-              >
-                <div className="text-2xl font-display font-bold text-white">
-                  {stat.value}
-                </div>
-                <div className="text-xs text-muted mt-1">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        )}
+            {/* Batch selector */}
+            <div className="flex flex-wrap gap-2 mb-8 justify-center">
+              {Object.entries(BATCHES).map(([slug, b]) => (
+                <button
+                  key={slug}
+                  onClick={() => {
+                    setSelectedBatch(slug);
+                    setResults([]);
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    selectedBatch === slug
+                      ? "bg-gradient-to-r from-vibe-purple to-vibe-pink text-white"
+                      : "bg-surface border border-white/10 text-muted hover:text-white"
+                  }`}
+                >
+                  {b.name}
+                </button>
+              ))}
+            </div>
 
-        {/* Results Grid */}
-        {results.length > 0 && (
-          <div
-            className={`grid gap-4 ${results.length === 1 ? "grid-cols-1 max-w-lg mx-auto" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}
-          >
-            {results.map((result, i) => (
-              <div
-                key={i}
-                className="rounded-2xl bg-surface border border-white/[0.06] overflow-hidden"
-              >
-                {/* Panel Header */}
-                <div className="p-3 border-b border-white/[0.06]">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-vibe-purple to-vibe-pink flex items-center justify-center text-xs font-bold">
-                      {result.index}
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium">
-                        {result.panel}
+            {/* Batch description */}
+            {batchInfo && (
+              <p className="text-center text-muted text-sm mb-8 max-w-xl mx-auto">
+                {batchInfo.description}
+              </p>
+            )}
+
+            {/* Products Grid */}
+            {batchInfo && (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {batchInfo.products.map((product) => {
+                  const result = results.find(
+                    (r) => r.product_slug === product.slug
+                  );
+                  return (
+                    <div
+                      key={product.slug}
+                      className="group rounded-2xl bg-surface border border-white/[0.06] overflow-hidden hover:border-white/10 transition-all"
+                    >
+                      {/* Image */}
+                      <div className="aspect-[2/3] bg-black/50 flex items-center justify-center overflow-hidden relative">
+                        {result?.images?.[0] ? (
+                          <img
+                            src={result.images[0]}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="text-center p-4">
+                            <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-vibe-purple/20 to-vibe-pink/20 flex items-center justify-center mb-2">
+                              <svg className="w-6 h-6 text-vibe-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <path d="M3 9h18" />
+                                <path d="M9 21V9" />
+                              </svg>
+                            </div>
+                            <p className="text-xs text-muted">
+                              Click "Generate" to create Scape
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Generate overlay */}
+                        {!result && (
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button
+                              onClick={() => generateProduct(product.slug)}
+                              disabled={loading}
+                              className="px-4 py-2 rounded-full bg-white text-black text-xs font-medium hover:bg-white/90 transition-all disabled:opacity-50"
+                            >
+                              {loading ? "..." : "Generate Scape"}
+                            </button>
+                          </div>
+                        )}
                       </div>
-                      {result.metadata && (
-                        <div className="text-xs text-muted">
-                          {result.metadata.duration_seconds}s · ~$0.05
+
+                      {/* Product Info */}
+                      <div className="p-3 space-y-2">
+                        <div className="text-xs text-vibe-cyan font-medium">
+                          {product.category}
                         </div>
-                      )}
+                        <h3 className="font-display font-semibold text-sm leading-tight">
+                          {product.name}
+                        </h3>
+
+                        {/* Affiliate Link Placeholder */}
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <span className="text-muted">Link:</span>
+                          <code className="text-vibe-purple bg-white/5 px-1.5 py-0.5 rounded text-[10px] truncate max-w-[180px]">
+                            {result?.affiliate_link || product.affiliateLink}
+                          </code>
+                        </div>
+
+                        {/* Pinterest Caption */}
+                        {result && (
+                          <details className="group">
+                            <summary className="text-[10px] text-muted cursor-pointer hover:text-white transition-colors">
+                              Pinterest caption
+                            </summary>
+                            <p className="text-[10px] text-muted mt-1 leading-relaxed">
+                              {result.pinterest_caption}
+                            </p>
+                          </details>
+                        )}
+
+                        {/* Regenerate button */}
+                        {result && (
+                          <button
+                            onClick={() => generateProduct(product.slug)}
+                            disabled={loading}
+                            className="w-full py-1.5 rounded-full border border-white/10 text-xs text-muted hover:text-white hover:bg-white/5 transition-all disabled:opacity-50"
+                          >
+                            {loading ? "Generating..." : "↻ Regenerate"}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Batch generate button */}
+            {batchInfo && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={generateBatch}
+                  disabled={loading}
+                  className="px-8 py-3 rounded-full bg-gradient-to-r from-vibe-purple to-vibe-pink text-white font-medium text-sm hover:opacity-90 transition-all disabled:opacity-50"
+                >
+                  {loading
+                    ? `Generating ${batchInfo.products.length} Scapes...`
+                    : `Generate All ${batchInfo.products.length} Scapes`}
+                </button>
+                <p className="text-xs text-muted mt-2">
+                  ~$0.25 per batch (5 products × 3 variations × $0.05 each
+                  ÷ 3 selected)
+                </p>
+              </div>
+            )}
+
+            {/* Error */}
+            {error && (
+              <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                {error}
+              </div>
+            )}
+
+            {/* Results metadata */}
+            {results.length > 0 && (
+              <div className="mt-8 p-4 rounded-xl bg-surface border border-white/[0.06]">
+                <h3 className="font-display font-semibold text-sm mb-3">
+                  Generation Report
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                  <div>
+                    <div className="text-muted text-xs">Products</div>
+                    <div className="font-medium">
+                      {results.length}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted text-xs">Variations</div>
+                    <div className="font-medium">
+                      {results.reduce((s, r) => s + r.images.length, 0)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted text-xs">Est. Cost</div>
+                    <div className="font-medium">
+                      ${(results.reduce((s, r) => s + r.images.length, 0) * 0.05).toFixed(2)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted text-xs">Batch</div>
+                    <div className="font-medium capitalize">
+                      {batchInfo.name}
                     </div>
                   </div>
                 </div>
-
-                {/* Image */}
-                <div className="aspect-[3/2] bg-black/50 flex items-center justify-center overflow-hidden">
-                  {result.images.length > 0 ? (
-                    <img
-                      src={result.images[0]}
-                      alt={result.panel}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-muted text-sm">Failed to generate</div>
-                  )}
-                </div>
-
-                {/* Prompt */}
-                <div className="p-3">
-                  <details className="group">
-                    <summary className="text-xs text-muted cursor-pointer hover:text-white transition-colors">
-                      View prompt
-                    </summary>
-                    <p className="text-xs text-muted mt-2 leading-relaxed">
-                      {NEON_NIGHTS_PROMPTS[result.index - 1]?.prompt}
-                    </p>
-                  </details>
-                </div>
               </div>
-            ))}
+            )}
           </div>
-        )}
+        </div>
+      ) : (
+        /* === SCAPER TAB === */
+        <div className="pt-24 px-6 pb-16">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h1 className="font-display text-3xl sm:text-4xl font-bold mb-3">
+                🏗️ Product <span className="gradient-text">Scaper</span>
+              </h1>
+              <p className="text-muted max-w-xl mx-auto">
+                Automated batch generation pipeline for Vibe Scapes. Configure,
+                generate, and manage product visuals for all aesthetic batches.
+              </p>
+            </div>
 
-        {/* Loading state */}
-        {loading && results.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-12 h-12 mx-auto rounded-full border-2 border-vibe-purple/30 border-t-vibe-purple animate-spin mb-4" />
-            <p className="text-muted text-sm">
-              Generating panels... (each takes 5-15 seconds)
-            </p>
+            {/* Batch selection */}
+            <div className="grid gap-4">
+              {Object.entries(BATCHES).map(([slug, batch]) => (
+                <div
+                  key={slug}
+                  className="p-6 rounded-2xl bg-surface border border-white/[0.06]"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="font-display font-semibold text-lg">
+                        {batch.name}
+                      </h3>
+                      <p className="text-muted text-sm mt-1">
+                        {batch.description}
+                      </p>
+                    </div>
+                    <div className="text-right text-xs text-muted">
+                      <div>{batch.products.length} products</div>
+                      <div>{batch.aspectRatio} ratio</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    {batch.products.map((product) => (
+                      <div
+                        key={product.slug}
+                        className="flex items-center justify-between p-3 rounded-xl bg-black/20"
+                      >
+                        <div>
+                          <div className="text-sm font-medium">
+                            {product.name}
+                          </div>
+                          <div className="text-xs text-muted">
+                            {product.category} · Seed {product.seed}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <code className="text-[10px] text-vibe-cyan bg-white/5 px-2 py-1 rounded">
+                            {product.affiliateLink}
+                          </code>
+                          <button
+                            onClick={() => generateProduct(product.slug)}
+                            disabled={loading}
+                            className="px-3 py-1.5 rounded-full bg-white/10 text-white text-xs hover:bg-white/20 transition-all disabled:opacity-50"
+                          >
+                            Generate
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedBatch(slug);
+                        generateBatch();
+                      }}
+                      disabled={loading}
+                      className="px-4 py-2 rounded-full bg-gradient-to-r from-vibe-purple to-vibe-pink text-white text-xs font-medium hover:opacity-90 transition-all disabled:opacity-50"
+                    >
+                      Generate All ({batch.products.length})
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedBatch(slug);
+                        setActiveTab("preview");
+                      }}
+                      className="px-4 py-2 rounded-full border border-white/10 text-muted text-xs hover:text-white transition-all"
+                    >
+                      View Gallery
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Future batch placeholder */}
+            <div className="mt-6 p-6 rounded-2xl border border-dashed border-white/10 text-center">
+              <p className="text-muted text-sm">
+                ✨ Future batches: <strong>Storied Pages</strong> (Dark
+                Academia), <strong>Cozy Corners</strong> (Lo-fi /
+                Cottagecore), <strong>Dream Worlds</strong> (Fantasy /
+                Ethereal), <strong>Midnight City</strong> (Cyberpunk / Noir)
+              </p>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
