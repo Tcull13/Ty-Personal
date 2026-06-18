@@ -10,8 +10,15 @@
 const NEON_NIGHTS_ANCHOR =
   "vaporwave aesthetic, synthwave style, retro 80s neon outrun, chrome accents, cyan and pink color palette, grid floor reflections, neon glow lighting, retro-futuristic, dreamy nostalgic mood, grainy VHS texture, soft lens flare, cinematic composition, product photography, clean sharp focus on product, soft background blur, aspirational lifestyle";
 
+// Shared style anchor appended to all Cozy Corners prompts
+const COZY_CORNERS_ANCHOR =
+  "cottagecore aesthetic, lofi cozy vibes, warm soft window lighting, pastoral peaceful mood, handmade and natural textures, muted sage green and warm terracotta palette, watercolor warmth, gentle nostalgic atmosphere, hygge feeling, soft grain, warm vignette, product photography, clean sharp focus on product, soft background blur, cozy room atmosphere, warm golden tones";
+
 const UNIVERSAL_NEGATIVE_PROMPT =
   "photorealistic human faces, people, crowds, messy composition, dull colors, natural lighting, daytime, brown tones, earth tones, modern realistic architecture, photoreal, 3d render, oversaturated, washed out, low contrast, minimalist, grunge, cluttered, dirty, ugly";
+
+const COZY_CORNERS_NEGATIVE_PROMPT =
+  "neon, cold lighting, fluorescent, modern, sterile, plastic, minimalist, concrete, harsh shadows, corporate, urban, dirty, grimy, dark themes, horror, gothic, dramatic chiaroscuro, angular, sterile surfaces, people, messy composition, oversaturated, washed out, low contrast";
 
 export interface ScapeProduct {
   /** URL-safe slug (e.g. "neon-cloud-sign") */
@@ -113,6 +120,73 @@ export const BATCHES: Record<string, ScapeBatch> = {
         caption:
           "Make it yours with a custom multi-colored neon sign 💗💙💜💚 Each letter glows in a different hue. The ultimate personalized vaporwave room statement piece. #CustomNeon #Vaporwave #RoomGoals #NeonSigns",
         prompt: `A custom multi-colored neon sign mounted on a vaporwave bedroom accent wall, the sign spells a word in glowing neon tubes with vibrant pink, cyan, purple, and green colors, each letter a different neon hue, the sign casts colorful reflections across the dark purple wall, a white acrylic floating shelf below holds a small retro arcade figurine and a glowing crystal decoration, the room has subtle grid pattern lighting on the ceiling, a retro arcade machine visible in the background with CRT glow, custom personalized atmosphere, ${NEON_NIGHTS_ANCHOR}`,
+      },
+    ],
+  },
+
+  "cozy-corners": {
+    slug: "cozy-corners",
+    name: "Cozy Corners",
+    description:
+      "Cottagecore and lofi aesthetic product scapes with warm window lighting, soft textures, and hygge vibes. Perfect for cozy desk setups, reading nooks, and warm minimalist decor.",
+    negativePrompt: COZY_CORNERS_NEGATIVE_PROMPT,
+    aspectRatio: "2:3",
+    numOutputs: 3,
+    products: [
+      {
+        slug: "cloud-wrist-rest",
+        name: "Cloud Keyboard Wrist Rest (White)",
+        category: "Desk Accessories",
+        seed: 30001,
+        guidanceScale: 3.5,
+        affiliateLink: "[AFFILIATE_LINK_CLOUD_WRIST_REST]",
+        caption:
+          "Type in dreamy comfort with this cloud-shaped wrist rest ☁️💻 Soft white memory foam on a warm wooden desk, paired with tea, rain on the window, and pure lofi vibes. #CozyDesk #Lofi #WristRest #Cottagecore",
+        prompt: `A soft white cloud-shaped keyboard wrist rest on a warm wooden desk, paired with a cream mechanical keyboard, a steaming ceramic mug of tea with a dangling tea tag beside it, a small potted succulent in a terracotta pot, warm golden afternoon light streaming through a window with sheer white curtains, raindrops visible on the window pane outside, a soft knitted blanket draped over the desk chair in the background, the wrist rest has a plush cloud-like texture, calm lofi atmosphere, cozy desk corner, ${COZY_CORNERS_ANCHOR}`,
+      },
+      {
+        slug: "cat-paw-cushion",
+        name: "Cat Paw Plush Seat Cushion",
+        category: "Seating",
+        seed: 30002,
+        guidanceScale: 4.0,
+        affiliateLink: "[AFFILIATE_LINK_CAT_PAW_CUSHION]",
+        caption:
+          "Your cozy corner needs this plush cat paw seat cushion 🐱☁️ Soft beige with pink paw pads, fairy lights, and a sleepy orange kitty. The ultimate lofi floor setup. #CatPawCushion #CozyCorner #Lofi #Kawaii",
+        prompt: `A large plush cat paw-shaped seat cushion on a warm wooden bedroom floor, the cushion is soft cream beige with pink paw pads, fluffy textured fabric, a low wooden coffee table beside it holds a steaming ceramic coffee cup and an open paperback book, a real small orange tabby cat curled up sleeping next to the cushion, warm amber fairy lights strung across the wall above, a window showing soft rain outside, warm floor lamp casting golden light across the scene, soft knitted throw on the floor, calm peaceful afternoon, ${COZY_CORNERS_ANCHOR}`,
+      },
+      {
+        slug: "frog-desk-mat",
+        name: "Kawaii Frog Green Desk Mat",
+        category: "Desk Accessories",
+        seed: 30003,
+        guidanceScale: 3.5,
+        affiliateLink: "[AFFILIATE_LINK_FROG_DESK_MAT]",
+        caption:
+          "Hop into productivity with this kawaii frog desk mat 🐸🌿 Sage green, cute frog illustration, and a matcha latte — the coziest desk setup ever. #FrogDeskMat #Cottagecore #DeskSetup #Kawaii",
+        prompt: `A large kawaii frog-themed desk mat in soft sage green on a warm wooden desk, the mat features a cute frog illustration sitting on a lily pad with subtle botanical patterns around it, a white mechanical keyboard with soft green LED backlight on top of the mat, a small ceramic frog figurine beside a glass of vibrant matcha latte, a monstera plant in a woven basket to the right, soft morning light filtering through sheer curtains, a small notebook open with a green pen, fresh calm cottagecore atmosphere, ${COZY_CORNERS_ANCHOR}`,
+      },
+      {
+        slug: "pixel-speaker",
+        name: "Divoom MiniToo Retro Pixel Speaker",
+        category: "Tech",
+        seed: 30004,
+        guidanceScale: 3.5,
+        affiliateLink: "[AFFILIATE_LINK_PIXEL_SPEAKER]",
+        caption:
+          "Retro vibes and pixel art meet cozy evenings 🎵✨ This Divoom MiniToo speaker shows a cute pixel bunny on screen beside hot chocolate, books, and fairy lights. #PixelSpeaker #Lofi #CozyDesk #RetroTech",
+        prompt: `A retro PC-styled Divoom MiniToo pixel speaker on a warm wooden desk, the speaker's pixel LED screen displays a cute glowing pixel art bunny with a heart, soft warm light emanating from the screen, a ceramic mug of hot chocolate with mini marshmallows beside it, a vintage brass desk lamp with amber bulb casting warm light across the scene, a stack of paperback books with a silk bookmark hanging out, soft fairy lights strung across the wall in the background, a small trailing plant in a hanging pot, evening lofi atmosphere, cozy desk corner, ${COZY_CORNERS_ANCHOR}`,
+      },
+      {
+        slug: "daisy-headphone-stand",
+        name: "Wood Daisy Headphone Stand",
+        category: "Desk Accessories",
+        seed: 30005,
+        guidanceScale: 4.0,
+        affiliateLink: "[AFFILIATE_LINK_DAISY_HEADPHONE_STAND]",
+        caption:
+          "Nature-inspired desk decor at its finest 🌼🎧 This wooden daisy headphone stand pairs cream headphones with dried flowers, chamomile tea, and golden afternoon light. #Cottagecore #DeskDecor #HeadphoneStand #CozyVibes",
+        prompt: `A natural wood daisy-shaped headphone stand on a cottagecore wooden desk, the stand is carved from warm oak wood shaped like a blooming daisy flower, softly holding a pair of cream-colored vintage-style headphones draped over the daisy petals, a small ceramic vase with dried lavender and baby's breath beside it, a handwritten letter on cream paper with a burgundy wax seal, a steaming cup of chamomile tea in a ceramic mug, a small beeswax candle with a soft flame, warm golden afternoon light with visible dust motes floating in the air, floral cottage atmosphere, ${COZY_CORNERS_ANCHOR}`,
       },
     ],
   },

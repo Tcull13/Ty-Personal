@@ -1,0 +1,48 @@
+{
+  "batch": "cozy-corners",
+  "batch_name": "Cozy Corners",
+  "generated_at": null,
+  "aspect_ratio": "2:3",
+  "products": [
+    {
+      "slug": "cloud-wrist-rest",
+      "name": "Cloud Keyboard Wrist Rest (White)",
+      "category": "Desk Accessories",
+      "seed": 30001,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_CLOUD_WRIST_REST]",
+      "pinterest_caption": "Type in dreamy comfort with this cloud-shaped wrist rest ☁️💻 Soft white memory foam on a warm wooden desk, paired with tea, rain on the window, and pure lofi vibes. #CozyDesk #Lofi #WristRest #Cottagecore"
+    },
+    {
+      "slug": "cat-paw-cushion",
+      "name": "Cat Paw Plush Seat Cushion",
+      "category": "Seating",
+      "seed": 30002,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_CAT_PAW_CUSHION]",
+      "pinterest_caption": "Your cozy corner needs this plush cat paw seat cushion 🐱☁️ Soft beige with pink paw pads, fairy lights, and a sleepy orange kitty. The ultimate lofi floor setup. #CatPawCushion #CozyCorner #Lofi #Kawaii"
+    },
+    {
+      "slug": "frog-desk-mat",
+      "name": "Kawaii Frog Green Desk Mat",
+      "category": "Desk Accessories",
+      "seed": 30003,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_FROG_DESK_MAT]",
+      "pinterest_caption": "Hop into productivity with this kawaii frog desk mat 🐸🌿 Sage green, cute frog illustration, and a matcha latte — the coziest desk setup ever. #FrogDeskMat #Cottagecore #DeskSetup #Kawaii"
+    },
+    {
+      "slug": "pixel-speaker",
+      "name": "Divoom MiniToo Retro Pixel Speaker",
+      "category": "Tech",
+      "seed": 30004,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_PIXEL_SPEAKER]",
+      "pinterest_caption": "Retro vibes and pixel art meet cozy evenings 🎵✨ This Divoom MiniToo speaker shows a cute pixel bunny on screen beside hot chocolate, books, and fairy lights. #PixelSpeaker #Lofi #CozyDesk #RetroTech"
+    },
+    {
+      "slug": "daisy-headphone-stand",
+      "name": "Wood Daisy Headphone Stand",
+      "category": "Desk Accessories",
+      "seed": 30005,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_DAISY_HEADPHONE_STAND]",
+      "pinterest_caption": "Nature-inspired desk decor at its finest 🌼🎧 This wooden daisy headphone stand pairs cream headphones with dried flowers, chamomile tea, and golden afternoon light. #Cottagecore #DeskDecor #HeadphoneStand #CozyVibes"
+    }
+  ]
+}

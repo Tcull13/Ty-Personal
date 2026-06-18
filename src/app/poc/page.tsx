@@ -416,8 +416,7 @@ export default function VibeVaultPage() {
             <div className="mt-6 p-6 rounded-2xl border border-dashed border-white/10 text-center">
               <p className="text-muted text-sm">
                 ✨ Future batches: <strong>Storied Pages</strong> (Dark
-                Academia), <strong>Cozy Corners</strong> (Lo-fi /
-                Cottagecore), <strong>Dream Worlds</strong> (Fantasy /
+                Academia), <strong>Dream Worlds</strong> (Fantasy /
                 Ethereal), <strong>Midnight City</strong> (Cyberpunk / Noir)
               </p>
             </div>
