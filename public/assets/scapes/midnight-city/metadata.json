@@ -1,0 +1,48 @@
+{
+  "batch": "midnight-city",
+  "batch_name": "Midnight City",
+  "generated_at": null,
+  "aspect_ratio": "2:3",
+  "products": [
+    {
+      "slug": "rgb-circuit-mousepad",
+      "name": "Cyberpunk RGB Gaming Mouse Pad (Circuit Board)",
+      "category": "Gaming",
+      "seed": 50001,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_RGB_CIRCUIT_MOUSEPAD]",
+      "pinterest_caption": "Power up your desk with this RGB circuit board gaming mouse pad 🖥️💜 Neon blue and magenta circuit lines glow across the surface, paired with a cyberpunk city backdrop. #Cyberpunk #RGB #GamingSetup #DeskSetup"
+    },
+    {
+      "slug": "neon-book-nook",
+      "name": "Neo Ramen MiniAlley Cyberpunk Book Nook Kit",
+      "category": "DIY/Kits",
+      "seed": 50002,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_NEON_BOOK_NOOK]",
+      "pinterest_caption": "Build your own cyberpunk ramen alley 🏮🌃 This DIY book nook kit creates a miniature neon-lit street scene with glowing signs, lanterns, and rain effects. #BookNook #Cyberpunk #DIY #Miniature"
+    },
+    {
+      "slug": "times-gate-clock",
+      "name": "Divoom Times Gate Cyberpunk Digital Clock",
+      "category": "Tech",
+      "seed": 50003,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_TIMES_GATE_CLOCK]",
+      "pinterest_caption": "Track crypto in style with this cyberpunk digital clock ⏰💚 Neon green Bitcoin dashboard on a pixel LED display, brushed silver body, and RGB accent lighting. #Cyberpunk #Crypto #DeskClock #TechDecor"
+    },
+    {
+      "slug": "mech-hand-stand",
+      "name": "Silverhand Mechanical Hand Controller Stand",
+      "category": "Gaming",
+      "seed": 50004,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_MECH_HAND_STAND]",
+      "pinterest_caption": "Level up your gaming setup with this chrome mechanical hand controller stand 🦾🎮 Articulated fingers, neon rim lighting, and pure Blade Runner vibes. #Cyberpunk #GamingSetup #ControllerStand #Silverhand"
+    },
+    {
+      "slug": "neon-city-desk-mat",
+      "name": "Neon City Extra-Large Desk Mat (Cityscape Print)",
+      "category": "Gaming",
+      "seed": 50005,
+      "affiliate_link_placeholder": "[AFFILIATE_LINK_NEON_CITY_DESK_MAT]",
+      "pinterest_caption": "Anchoring your entire cyberpunk desk setup 🌆💙 This extra-large desk mat features a glowing neon cityscape with flying vehicles and rain effects. #Cyberpunk #DeskSetup #DeskMat #NeonCity"
+    }
+  ]
+}

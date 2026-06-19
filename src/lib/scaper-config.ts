@@ -20,6 +20,13 @@ const UNIVERSAL_NEGATIVE_PROMPT =
 const COZY_CORNERS_NEGATIVE_PROMPT =
   "neon, cold lighting, fluorescent, modern, sterile, plastic, minimalist, concrete, harsh shadows, corporate, urban, dirty, grimy, dark themes, horror, gothic, dramatic chiaroscuro, angular, sterile surfaces, people, messy composition, oversaturated, washed out, low contrast";
 
+// Shared style anchor appended to all Midnight City prompts
+const MIDNIGHT_CITY_ANCHOR =
+  "cyberpunk aesthetic, noir atmosphere, neon-lit rainy city night, electric blue and magenta palette, holographic advertisements reflecting on wet pavement, gritty urban mood, high contrast cinematic lighting, dark shadows with neon rim light, chrome and steel details, product photography, clean sharp focus on product, soft background blur, tech-heavy atmosphere";
+
+const MIDNIGHT_CITY_NEGATIVE_PROMPT =
+  "sunlight, daytime, bright, cheerful, pastel, clean, suburban, rural, nature, peaceful, soft lighting, warm cozy, cottagecore, fantasy, utopian, cartoonish, minimalist, organic, earthy without neon, low contrast, blurry, people, messy composition, oversaturated, dull";
+
 export interface ScapeProduct {
   /** URL-safe slug (e.g. "neon-cloud-sign") */
   slug: string;
@@ -187,6 +194,73 @@ export const BATCHES: Record<string, ScapeBatch> = {
         caption:
           "Nature-inspired desk decor at its finest 🌼🎧 This wooden daisy headphone stand pairs cream headphones with dried flowers, chamomile tea, and golden afternoon light. #Cottagecore #DeskDecor #HeadphoneStand #CozyVibes",
         prompt: `A natural wood daisy-shaped headphone stand on a cottagecore wooden desk, the stand is carved from warm oak wood shaped like a blooming daisy flower, softly holding a pair of cream-colored vintage-style headphones draped over the daisy petals, a small ceramic vase with dried lavender and baby's breath beside it, a handwritten letter on cream paper with a burgundy wax seal, a steaming cup of chamomile tea in a ceramic mug, a small beeswax candle with a soft flame, warm golden afternoon light with visible dust motes floating in the air, floral cottage atmosphere, ${COZY_CORNERS_ANCHOR}`,
+      },
+    ],
+  },
+
+  "midnight-city": {
+    slug: "midnight-city",
+    name: "Midnight City",
+    description:
+      "Cyberpunk and noir aesthetic product scapes with neon-lit city nights, electric blue and magenta glow, and high-contrast cinematic lighting. Perfect for tech enthusiasts, gamers, and cyberpunk fans.",
+    negativePrompt: MIDNIGHT_CITY_NEGATIVE_PROMPT,
+    aspectRatio: "2:3",
+    numOutputs: 3,
+    products: [
+      {
+        slug: "rgb-circuit-mousepad",
+        name: "Cyberpunk RGB Gaming Mouse Pad (Circuit Board)",
+        category: "Gaming",
+        seed: 50001,
+        guidanceScale: 4.0,
+        affiliateLink: "[AFFILIATE_LINK_RGB_CIRCUIT_MOUSEPAD]",
+        caption:
+          "Power up your desk with this RGB circuit board gaming mouse pad 🖥️💜 Neon blue and magenta circuit lines glow across the surface, paired with a cyberpunk city backdrop. #Cyberpunk #RGB #GamingSetup #DeskSetup",
+        prompt: `A large RGB gaming mouse pad with a glowing circuit board pattern on a dark cyberpunk desk, the pad illuminated with neon blue and magenta circuit lines tracing across the surface, a mechanical keyboard with cyan LED backlighting resting on the pad, a sleek futuristic gaming mouse with RGB glow, a geometric holographic-style desk lamp casting triangular light patterns across the desk, a dark window in the background showing a rainy neon-lit city skyline with towering skyscrapers and holographic billboards, steam rising from street vents below, chrome and glass textures throughout, ${MIDNIGHT_CITY_ANCHOR}`,
+      },
+      {
+        slug: "neon-book-nook",
+        name: "Neo Ramen MiniAlley Cyberpunk Book Nook Kit",
+        category: "DIY/Kits",
+        seed: 50002,
+        guidanceScale: 4.0,
+        affiliateLink: "[AFFILIATE_LINK_NEON_BOOK_NOOK]",
+        caption:
+          "Build your own cyberpunk ramen alley 🏮🌃 This DIY book nook kit creates a miniature neon-lit street scene with glowing signs, lanterns, and rain effects. #BookNook #Cyberpunk #DIY #Miniature",
+        prompt: `A completed DIY cyberpunk book nook miniature diorama on a dark wooden bookshelf, the book nook depicts a futuristic ramen alley with tiny glowing neon signs in pink, cyan, and warm yellow, miniature lanterns hanging above, steam rising from small food stalls, tiny rain-slicked street reflecting neon light, the book nook's built-in tiny LED lights illuminating the entire miniature scene from within, placed between books with dark cyberpunk-themed spines and metallic foil accents, soft ambient light from the shelf's hidden LED strip casting dramatic shadows, the miniature details are intricate and highly realistic, ${MIDNIGHT_CITY_ANCHOR}`,
+      },
+      {
+        slug: "times-gate-clock",
+        name: "Divoom Times Gate Cyberpunk Digital Clock",
+        category: "Tech",
+        seed: 50003,
+        guidanceScale: 3.5,
+        affiliateLink: "[AFFILIATE_LINK_TIMES_GATE_CLOCK]",
+        caption:
+          "Track crypto in style with this cyberpunk digital clock ⏰💚 Neon green Bitcoin dashboard on a pixel LED display, brushed silver body, and RGB accent lighting. #Cyberpunk #Crypto #DeskClock #TechDecor",
+        prompt: `A Divoom Times Gate cyberpunk digital clock on a dark minimalist desk, the clock's pixel LED display is glowing with a Bitcoin and crypto dashboard in bright neon green and electric blue, real-time data visuals and charts scrolling across the screen, the clock has a brushed silver metallic body with subtle RGB accent lighting along its edges, the desk surface is dark and clean with a single braided neon cable trailing from the clock, a black coffee mug with a subtle tech logo beside it, the room is dark with the clock as the primary light source casting green and blue ambient glow across the desk surface, hacker den atmosphere, ${MIDNIGHT_CITY_ANCHOR}`,
+      },
+      {
+        slug: "mech-hand-stand",
+        name: "Silverhand Mechanical Hand Controller Stand",
+        category: "Gaming",
+        seed: 50004,
+        guidanceScale: 4.0,
+        affiliateLink: "[AFFILIATE_LINK_MECH_HAND_STAND]",
+        caption:
+          "Level up your gaming setup with this chrome mechanical hand controller stand 🦾🎮 Articulated fingers, neon rim lighting, and pure Blade Runner vibes. #Cyberpunk #GamingSetup #ControllerStand #Silverhand",
+        prompt: `A chrome mechanical hand controller stand on a dark cyberpunk desk, the articulated mechanical hand is posed mid-grip with a futuristic game controller held between its chrome fingers, the hand has a brushed chrome metallic finish with subtle neon blue LED glow emanating from its joint mechanisms, the desk surface is black glass with a holographic reflection beneath the hand, a dark wall behind displays a glowing cyberpunk city mural or holographic decal with neon signs in blue and magenta, blue and magenta neon rim lighting tracing the edges of the mechanical hand, chrome and glass textures throughout, dramatic shadows, Blade Runner inspired atmosphere, ${MIDNIGHT_CITY_ANCHOR}`,
+      },
+      {
+        slug: "neon-city-desk-mat",
+        name: "Neon City Extra-Large Desk Mat (Cityscape Print)",
+        category: "Gaming",
+        seed: 50005,
+        guidanceScale: 3.5,
+        affiliateLink: "[AFFILIATE_LINK_NEON_CITY_DESK_MAT]",
+        caption:
+          "Anchoring your entire cyberpunk desk setup 🌆💙 This extra-large desk mat features a glowing neon cityscape with flying vehicles and rain effects. #Cyberpunk #DeskSetup #DeskMat #NeonCity",
+        prompt: `An extra-large desk mat featuring a neon cyberpunk cityscape print covering a dark wooden desk, the mat depicts a futuristic city skyline at night with towering skyscrapers, glowing neon signs in electric blue, magenta, and warning yellow, flying vehicles with light trails weaving between buildings, subtle rain effects on the city illustration, a minimalist black mechanical keyboard and a sleek futuristic mouse resting on the mat, a small desktop neon sign reading "NEON" in pink light, warm amber desk lamp light from one side contrasting with cool blue neon glow from the cityscape pattern, the desk mat's edges have a subtle stitched border, cyberpunk desk atmosphere, ${MIDNIGHT_CITY_ANCHOR}`,
       },
     ],
   },

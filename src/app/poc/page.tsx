@@ -417,7 +417,7 @@ export default function VibeVaultPage() {
               <p className="text-muted text-sm">
                 ✨ Future batches: <strong>Storied Pages</strong> (Dark
                 Academia), <strong>Dream Worlds</strong> (Fantasy /
-                Ethereal), <strong>Midnight City</strong> (Cyberpunk / Noir)
+                Ethereal)
               </p>
             </div>
           </div>
