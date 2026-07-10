@@ -1,24 +1,29 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import { db } from "../db/index.js";
 import { storefronts } from "../db/schema.js";
 import { eq } from "drizzle-orm";
-import { randomUUID } from "crypto";
+import authRoutes from "./auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = 3001;
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 
 // Serve static frontend in production
 const distPath = path.join(__dirname, "..", "dist");
 app.use(express.static(distPath));
 
-// GET all storefronts (for dashboard lookup)
+// Auth routes
+app.use("/api/auth", authRoutes);
+
+// GET all storefronts (for dashboard lookup — public)
 app.get("/api/storefronts", (_req, res) => {
   try {
     const all = db.select().from(storefronts).all();
@@ -28,7 +33,7 @@ app.get("/api/storefronts", (_req, res) => {
   }
 });
 
-// GET single storefront by slug
+// GET single storefront by slug (public)
 app.get("/api/storefronts/:slug", (req, res) => {
   try {
     const biz = db
@@ -45,7 +50,7 @@ app.get("/api/storefronts/:slug", (req, res) => {
   }
 });
 
-// POST create storefront
+// POST create storefront (legacy — no auth, no password)
 app.post("/api/storefronts", (req, res) => {
   try {
     const { businessName, ownerName, phone, email, website, services, serviceArea, description, slug } = req.body;

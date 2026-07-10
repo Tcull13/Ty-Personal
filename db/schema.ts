@@ -11,5 +11,14 @@ export const storefronts = sqliteTable("storefronts", {
   serviceArea: text("service_area").default(""),
   description: text("description").default(""),
   slug: text("slug").notNull().unique(),
+  passwordHash: text("password_hash").default(""),
+  createdAt: text("created_at").default(""),
+});
+
+export const sessions = sqliteTable("sessions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  storefrontId: integer("storefront_id").notNull().references(() => storefronts.id),
+  token: text("token").notNull().unique(),
+  expiresAt: text("expires_at").notNull(),
   createdAt: text("created_at").default(""),
 });

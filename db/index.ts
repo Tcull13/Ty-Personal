@@ -23,8 +23,26 @@ sqlite.exec(`
     service_area TEXT DEFAULT '',
     description TEXT DEFAULT '',
     slug TEXT NOT NULL UNIQUE,
+    password_hash TEXT DEFAULT '',
     created_at TEXT DEFAULT (datetime('now'))
   )
 `);
+
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    storefront_id INTEGER NOT NULL REFERENCES storefronts(id),
+    token TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+// Add password_hash column if it doesn't exist (migration for existing DBs)
+try {
+  sqlite.exec(`ALTER TABLE storefronts ADD COLUMN password_hash TEXT DEFAULT ''`);
+} catch {
+  // Column already exists — ignore
+}
 
 export const db = drizzle(sqlite, { schema });
