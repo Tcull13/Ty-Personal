@@ -151,18 +151,45 @@ export default function DashboardPage() {
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h2 className="font-heading text-lg font-bold text-doorway-dark mb-2">Your QR Code</h2>
                 <p className="text-doorway-gray text-sm mb-6">
-                  Print this on your truck, uniform, flyers, and invoices.
+                  Print this on your truck, uniform, flyers, and invoices. Every scan is a potential customer.
                 </p>
                 <div className="flex flex-col items-center">
                   <div className="bg-white p-4 rounded-xl border-2 border-gray-100 shadow-sm mb-6">
                     <QRCodeSVG id="qr-download-svg" value={storefrontUrl} size={200} />
                   </div>
-                  <button
-                    onClick={handleDownloadQR}
-                    className="bg-doorway-teal text-white px-6 py-3 rounded-xl font-semibold hover:bg-doorway-teal-light transition-colors"
-                  >
-                    Download QR Code (SVG)
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
+                    <button
+                      onClick={handleDownloadQR}
+                      className="flex-1 bg-doorway-teal text-white px-4 py-3 rounded-xl font-semibold text-sm hover:bg-doorway-teal-light transition-colors"
+                    >
+                      ⬇️ Download SVG
+                    </button>
+                    <a
+                      href={`/api/storefronts/${biz?.slug}/qr.png`}
+                      download
+                      className="flex-1 bg-doorway-amber text-white px-4 py-3 rounded-xl font-semibold text-sm hover:bg-doorway-amber-light transition-colors text-center"
+                    >
+                      ⬇️ Download PNG
+                    </a>
+                    <a
+                      href={`/api/storefronts/${biz?.slug}/qr/pdf`}
+                      download
+                      className="flex-1 border-2 border-doorway-teal text-doorway-teal px-4 py-3 rounded-xl font-semibold text-sm hover:bg-doorway-teal/5 transition-colors text-center"
+                    >
+                      ⬇️ PDF — Truck Magnet
+                    </a>
+                  </div>
+                  <div className="mt-6 bg-doorway-light rounded-xl p-4 w-full max-w-md">
+                    <p className="text-xs font-semibold text-doorway-dark uppercase tracking-wider mb-2">Placement Tips</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs text-doorway-gray">
+                      <span>🚛 Truck doors</span>
+                      <span>🪟 Storefront windows</span>
+                      <span>📄 Flyers</span>
+                      <span>🧾 Invoices</span>
+                      <span>💳 Business cards</span>
+                      <span>🧰 Tool boxes</span>
+                    </div>
+                  </div>
                   <p className="text-xs text-doorway-gray mt-4 text-center">
                     Link: {storefrontUrl}
                   </p>

@@ -18,18 +18,21 @@ function lookupStorefront(slug: string) {
 }
 
 /**
- * GET /api/:slug/qr/png
- * Returns a high-res PNG of the QR code (for stickers, business cards, etc.)
- * Query params: size (default 400, max 2000)
+ * GET /api/storefronts/:slug/qr.png
+ * Returns a high-res PNG of the QR code (1000x1000px minimum).
+ * Query param: size (default 1000, max 2000)
  */
-router.get("/:slug/qr/png", async (req: Request, res: Response) => {
+router.get("/storefronts/:slug/qr.png", async (req: Request, res: Response) => {
   try {
     const biz = lookupStorefront(req.params.slug);
     if (!biz) {
       return res.status(404).json({ error: "Storefront not found" });
     }
 
-    const size = Math.min(parseInt(req.query.size as string) || 400, 2000);
+    const size = Math.min(
+      parseInt(req.query.size as string) || 1000,
+      2000
+    );
     const url = `${req.protocol}://${req.get("host")}/${biz.slug}`;
 
     const qrBuffer = await QRCode.toBuffer(url, {
@@ -54,34 +57,28 @@ router.get("/:slug/qr/png", async (req: Request, res: Response) => {
 });
 
 /**
- * POST /api/:slug/qr/pdf
- * Generates a printable PDF with the business's QR code.
- * Body: { size: "truck" | "flyer" }
- * - Truck: ~4x4 inches
- * - Flyer: ~3x3 inches
+ * GET /api/storefronts/:slug/qr/pdf
+ * Generates a print-ready PDF with the business's QR code.
+ * 4x4 inch truck magnet size with QR code, business name, and tagline.
  */
-router.post("/:slug/qr/pdf", async (req: Request, res: Response) => {
+router.get("/storefronts/:slug/qr/pdf", async (req: Request, res: Response) => {
   try {
     const biz = lookupStorefront(req.params.slug);
     if (!biz) {
       return res.status(404).json({ error: "Storefront not found" });
     }
 
-    const size = req.body.size === "flyer" ? "flyer" : "truck";
-    const isTruck = size === "truck";
-
     // Dimensions in points (1 inch = 72 points)
-    const qrSize = isTruck ? 4 * 72 : 3 * 72; // 4" or 3"
-    const pageWidth = isTruck ? 5.5 * 72 : 4 * 72; // 5.5" or 4"
-    const pageHeight = isTruck ? 5.5 * 72 : 4 * 72; // 5.5" or 4"
-    const margin = 36; // 0.5 inch margin
+    const pageSize = 4 * 72; // 4x4 inches
+    const qrSize = 3.2 * 72; // 3.2" QR code with some padding
+    const margin = 24; // 0.33 inch margin
 
     const url = `${req.protocol}://${req.get("host")}/${biz.slug}`;
 
-    // Generate QR code as PNG buffer
+    // Generate QR code as PNG buffer at 2x resolution for crispness
     const qrBuffer = await QRCode.toBuffer(url, {
       type: "png",
-      width: qrSize * 2, // 2x resolution for crispness
+      width: qrSize * 2,
       margin: 1,
       color: {
         dark: "#1A1A2E",
@@ -91,7 +88,7 @@ router.post("/:slug/qr/pdf", async (req: Request, res: Response) => {
 
     // Create PDF
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([pageWidth, pageHeight]);
+    const page = pdfDoc.addPage([pageSize, pageSize]);
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
@@ -99,9 +96,9 @@ router.post("/:slug/qr/pdf", async (req: Request, res: Response) => {
     const qrImage = await pdfDoc.embedPng(qrBuffer);
     const qrDims = qrImage.scaleToFit(qrSize, qrSize);
 
-    // Center QR code horizontally
-    const qrX = (pageWidth - qrDims.width) / 2;
-    const qrY = pageHeight - margin - qrDims.height - 50;
+    // Center QR code horizontally, slightly above vertical center
+    const qrX = (pageSize - qrDims.width) / 2;
+    const qrY = (pageSize - qrDims.height) / 2 + 24;
 
     page.drawImage(qrImage, {
       x: qrX,
@@ -111,11 +108,11 @@ router.post("/:slug/qr/pdf", async (req: Request, res: Response) => {
     });
 
     // Business name above QR
-    const nameSize = isTruck ? 16 : 13;
+    const nameSize = 14;
     const nameWidth = fontBold.widthOfTextAtSize(biz.businessName, nameSize);
     page.drawText(biz.businessName, {
-      x: (pageWidth - nameWidth) / 2,
-      y: qrY + qrDims.height + 12,
+      x: (pageSize - nameWidth) / 2,
+      y: qrY + qrDims.height + 14,
       size: nameSize,
       font: fontBold,
       color: rgb(0.1, 0.1, 0.18),
@@ -123,22 +120,23 @@ router.post("/:slug/qr/pdf", async (req: Request, res: Response) => {
 
     // "Scan to visit my page" text below QR
     const tagline = "Scan to visit my page";
-    const taglineSize = isTruck ? 11 : 9;
+    const taglineSize = 10;
     const taglineWidth = font.widthOfTextAtSize(tagline, taglineSize);
     page.drawText(tagline, {
-      x: (pageWidth - taglineWidth) / 2,
-      y: qrY - 22,
+      x: (pageSize - taglineWidth) / 2,
+      y: qrY - 20,
       size: taglineSize,
       font: font,
       color: rgb(0.42, 0.45, 0.5),
     });
 
     // URL below tagline
-    const urlSize = isTruck ? 9 : 8;
-    const urlWidth = font.widthOfTextAtSize(url, urlSize);
-    page.drawText(url, {
-      x: (pageWidth - urlWidth) / 2,
-      y: qrY - 22 - urlSize - 6,
+    const shortUrl = `doorway.app/${biz.slug}`;
+    const urlSize = 9;
+    const urlWidth = font.widthOfTextAtSize(shortUrl, urlSize);
+    page.drawText(shortUrl, {
+      x: (pageSize - urlWidth) / 2,
+      y: qrY - 20 - urlSize - 6,
       size: urlSize,
       font: font,
       color: rgb(0.1, 0.48, 0.48),
@@ -149,7 +147,7 @@ router.post("/:slug/qr/pdf", async (req: Request, res: Response) => {
     const footerSize = 7;
     const footerWidth = font.widthOfTextAtSize(footer, footerSize);
     page.drawText(footer, {
-      x: (pageWidth - footerWidth) / 2,
+      x: (pageSize - footerWidth) / 2,
       y: 10,
       size: footerSize,
       font: font,
@@ -161,7 +159,7 @@ router.post("/:slug/qr/pdf", async (req: Request, res: Response) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${biz.slug}-qr-${size}.pdf"`
+      `attachment; filename="${biz.slug}-qr.pdf"`
     );
     res.send(Buffer.from(pdfBytes));
   } catch (err: any) {
