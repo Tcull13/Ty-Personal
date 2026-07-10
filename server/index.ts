@@ -7,6 +7,7 @@ import { db } from "../db/index.js";
 import { storefronts } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import authRoutes from "./auth.js";
+import qrRoutes from "./qr.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -22,6 +23,9 @@ app.use(express.static(distPath));
 
 // Auth routes
 app.use("/api/auth", authRoutes);
+
+// QR code generation routes
+app.use("/api", qrRoutes);
 
 // GET all storefronts (for dashboard lookup — public)
 app.get("/api/storefronts", (_req, res) => {
