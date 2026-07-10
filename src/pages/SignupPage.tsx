@@ -1,0 +1,240 @@
+import { useState, FormEvent } from "react";
+import { useNavigate, Link } from "react-router-dom";
+
+export default function SignupPage() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    businessName: "",
+    ownerName: "",
+    phone: "",
+    email: "",
+    website: "",
+    services: "",
+    serviceArea: "",
+    description: "",
+  });
+  const [slug, setSlug] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const updateField = (field: string, value: string) => {
+    const updated = { ...form, [field]: value };
+    setForm(updated);
+  };
+
+  const handleNameChange = (value: string) => {
+    setForm({ ...form, businessName: value });
+    if (value) {
+      setSlug(
+        value
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "")
+      );
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    if (!form.businessName || !form.phone || !form.services) {
+      setError("Business name, phone, and services are required.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/storefronts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, slug }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="text-5xl mb-4">🎉</div>
+          <h1 className="font-heading text-3xl font-bold text-doorway-dark mb-2">
+            Your storefront is live!
+          </h1>
+          <p className="text-doorway-gray mb-6">
+            Your page is ready at your unique link. Download your QR code to start promoting.
+          </p>
+          <Link
+            to={`/${slug}`}
+            className="block bg-doorway-teal text-white px-6 py-3 rounded-xl font-semibold hover:bg-doorway-teal-light transition-colors mb-3"
+          >
+            View Your Storefront
+          </Link>
+          <Link
+            to="/dashboard"
+            className="block border-2 border-doorway-teal text-doorway-teal px-6 py-3 rounded-xl font-semibold hover:bg-doorway-teal/5 transition-colors"
+          >
+            Go to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-doorway-light">
+      <nav className="bg-white border-b border-gray-100">
+        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center">
+          <Link to="/" className="flex items-center gap-2">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="8" fill="#1A7A7A"/>
+              <path d="M8 24V16L24 8V16L8 24Z" fill="#F5A623" opacity="0.9"/>
+              <path d="M10 22V17L22 11V16L10 22Z" fill="white" opacity="0.8"/>
+            </svg>
+            <span className="font-heading font-bold text-lg text-doorway-dark">Doorway</span>
+          </Link>
+        </div>
+      </nav>
+
+      <div className="max-w-lg mx-auto px-4 py-12">
+        <h1 className="font-heading text-3xl font-bold text-doorway-dark mb-2">
+          Create your free storefront
+        </h1>
+        <p className="text-doorway-gray mb-8">
+          Takes 30 seconds. No credit card needed.
+        </p>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 mb-6 text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Business Name *</label>
+            <input
+              type="text"
+              value={form.businessName}
+              onChange={(e) => handleNameChange(e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+              placeholder="e.g. River City Plumbing"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Your Name</label>
+            <input
+              type="text"
+              value={form.ownerName}
+              onChange={(e) => setForm({ ...form, ownerName: e.target.value })}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+              placeholder="e.g. Jane Smith"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Phone Number *</label>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+              placeholder="(555) 123-4567"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Website / Booking Link</label>
+            <input
+              type="url"
+              value={form.website}
+              onChange={(e) => setForm({ ...form, website: e.target.value })}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+              placeholder="https://booksy.com/your-link"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Services *</label>
+            <textarea
+              value={form.services}
+              onChange={(e) => setForm({ ...form, services: e.target.value })}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+              placeholder="List your services, one per line:&#10;Drain Cleaning&#10;Pipe Repair&#10;Water Heater Installation"
+              rows={4}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Service Area</label>
+            <input
+              type="text"
+              value={form.serviceArea}
+              onChange={(e) => setForm({ ...form, serviceArea: e.target.value })}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+              placeholder="e.g. Portland, OR and surrounding areas"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Short Description</label>
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+              placeholder="A short blurb about your business"
+              rows={2}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Your Page URL</label>
+            <div className="flex items-center rounded-xl border border-gray-200 px-4 py-3 bg-gray-50">
+              <span className="text-doorway-gray text-sm">doorway.app/</span>
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, ""))}
+                className="bg-transparent flex-1 focus:outline-none text-doorway-dark font-medium"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-doorway-teal text-white py-3.5 rounded-xl font-bold text-lg hover:bg-doorway-teal-light transition-colors shadow-lg shadow-doorway-teal/20 disabled:opacity-50"
+          >
+            {loading ? "Creating..." : "Create Your Free Storefront"}
+          </button>
+        </form>
+
+        <p className="text-xs text-doorway-gray text-center mt-6">
+          By signing up, you agree to our Terms of Service and Privacy Policy.
+          Your storefront includes "Powered by Doorway" branding on the free plan.
+        </p>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* Brand colors and theme */
+@theme {
+  --color-doorway-teal: #1A7A7A;
+  --color-doorway-teal-light: #219B9B;
+  --color-doorway-teal-dark: #145C5C;
+  --color-doorway-amber: #F5A623;
+  --color-doorway-amber-light: #F7B94D;
+  --color-doorway-amber-dark: #D48E1A;
+  --color-doorway-dark: #1A1A2E;
+  --color-doorway-gray: #6B7280;
+  --color-doorway-light: #F9FAFB;
+
+  --font-heading: "Urbanist", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}

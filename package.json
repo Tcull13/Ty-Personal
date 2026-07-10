@@ -1,0 +1,48 @@
+{
+	  "name": "doorway",
+	  "private": true,
+	  "version": "0.1.0",
+	  "type": "module",
+	  "scripts": {
+	  	  "dev": "concurrently \"bun run dev:frontend\" \"bun run dev:server\"",
+	  	  "dev:frontend": "vite",
+	  	  "dev:server": "bun run --watch server/index.ts",
+	  	  "build": "vite build && bun build server/index.ts --outdir dist-server",
+	  	  "preview": "concurrently \"bun run preview:frontend\" \"bun run preview:server\"",
+	  	  "preview:frontend": "vite preview",
+	  	  "preview:server": "bun dist-server/index.js",
+	  	  "db:generate": "drizzle-kit generate",
+	  	  "db:migrate": "bun run server/db/migrate.ts",
+	  	  "db:seed": "bun run server/db/seed.ts"
+	  },
+	  "dependencies": {
+	  	  "@tailwindcss/vite": "^4.0.0",
+	  	  "@types/cors": "^2.8.19",
+	  	  "bcryptjs": "^2.4.3",
+	  	  "better-sqlite3": "^11.0.0",
+	  	  "concurrently": "^9.0.0",
+	  	  "cors": "^2.8.6",
+	  	  "drizzle-orm": "^0.33.0",
+	  	  "express": "^4.21.0",
+	  	  "qrcode": "^1.5.4",
+	  	  "qrcode.react": "^4.0.0",
+	  	  "react": "^19.0.0",
+	  	  "react-dom": "^19.0.0",
+	  	  "react-router-dom": "^7.0.0",
+	  	  "tailwindcss": "^4.0.0",
+	  	  "tsx": "^4.23.0"
+	  },
+	  "devDependencies": {
+	  	  "@types/bcryptjs": "^2.4.6",
+	  	  "@types/better-sqlite3": "^7.6.0",
+	  	  "@types/express": "^5.0.0",
+	  	  "@types/node": "^22.0.0",
+	  	  "@types/qrcode": "^1.5.5",
+	  	  "@types/react": "^19.0.0",
+	  	  "@types/react-dom": "^19.0.0",
+	  	  "@vitejs/plugin-react": "^4.3.0",
+	  	  "drizzle-kit": "^0.24.0",
+	  	  "typescript": "^5.6.0",
+	  	  "vite": "^6.0.0"
+	  }
+}
