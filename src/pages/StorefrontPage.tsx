@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
 interface Storefront {
@@ -14,11 +14,27 @@ interface Storefront {
   slug: string;
 }
 
+function trackScan(slug: string, type: "view" | "scan" | "call_click") {
+  fetch(`/api/storefronts/${slug}/scan`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type }),
+  }).catch(() => {}); // Fire-and-forget
+}
+
 export default function StorefrontPage() {
   const { slug } = useParams<{ slug: string }>();
   const [biz, setBiz] = useState<Storefront | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [trackedView, setTrackedView] = useState(false);
+
+  // Track page view on mount (once)
+  useEffect(() => {
+    if (!slug || trackedView) return;
+    setTrackedView(true);
+    trackScan(slug, "view");
+  }, [slug, trackedView]);
 
   useEffect(() => {
     if (!slug) return;
@@ -31,6 +47,12 @@ export default function StorefrontPage() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [slug]);
+
+  const handleCall = useCallback(() => {
+    if (biz?.slug) {
+      trackScan(biz.slug, "call_click");
+    }
+  }, [biz?.slug]);
 
   if (loading) {
     return (
@@ -93,6 +115,7 @@ export default function StorefrontPage() {
         <div className="px-6 pt-6 pb-4 space-y-3">
           <a
             href={`tel:${biz.phone}`}
+            onClick={handleCall}
             className="block w-full bg-doorway-teal text-white text-center py-3.5 rounded-xl font-bold hover:bg-doorway-teal-light transition-colors"
           >
             📞 Call {biz.phone}

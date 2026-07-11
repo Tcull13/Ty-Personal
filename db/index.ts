@@ -24,6 +24,7 @@ sqlite.exec(`
     description TEXT DEFAULT '',
     slug TEXT NOT NULL UNIQUE,
     password_hash TEXT DEFAULT '',
+    plan TEXT DEFAULT 'free',
     created_at TEXT DEFAULT (datetime('now'))
   )
 `);
@@ -38,18 +39,20 @@ sqlite.exec(`
   )
 `);
 
-// Add password_hash column if it doesn't exist (migration for existing DBs)
-try {
-  sqlite.exec(`ALTER TABLE storefronts ADD COLUMN password_hash TEXT DEFAULT ''`);
-} catch {
-  // Column already exists — ignore
-}
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS scans (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    storefront_id INTEGER NOT NULL REFERENCES storefronts(id),
+    type TEXT NOT NULL,
+    referrer TEXT DEFAULT '',
+    ip TEXT DEFAULT '',
+    user_agent TEXT DEFAULT '',
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
 
-// Add plan column if it doesn't exist
-try {
-  sqlite.exec(`ALTER TABLE storefronts ADD COLUMN plan TEXT DEFAULT 'free'`);
-} catch {
-  // Column already exists — ignore
-}
+// Migrations for existing DBs
+try { sqlite.exec(`ALTER TABLE storefronts ADD COLUMN password_hash TEXT DEFAULT ''`); } catch {}
+try { sqlite.exec(`ALTER TABLE storefronts ADD COLUMN plan TEXT DEFAULT 'free'`); } catch {}
 
 export const db = drizzle(sqlite, { schema });

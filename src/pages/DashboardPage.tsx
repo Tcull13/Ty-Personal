@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
 
 interface Storefront {
   id: number;
@@ -21,6 +30,8 @@ export default function DashboardPage() {
   const [biz, setBiz] = useState<Storefront | null>(null);
   const [loading, setLoading] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   // Check auth on page load
   useEffect(() => {
@@ -43,6 +54,21 @@ export default function DashboardPage() {
         setLoading(false);
       });
   }, [navigate]);
+
+  // Fetch analytics when tab changes to analytics
+  useEffect(() => {
+    if (tab === "analytics" && biz?.slug) {
+      setAnalyticsLoading(true);
+      fetch(`/api/storefronts/${biz.slug}/analytics`, { credentials: "include" })
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to load analytics");
+          return res.json();
+        })
+        .then((data) => setAnalytics(data))
+        .catch(() => setAnalytics(null))
+        .finally(() => setAnalyticsLoading(false));
+    }
+  }, [tab, biz?.slug]);
 
   const setTab = (t: string) => setSearchParams({ tab: t });
 
@@ -229,29 +255,98 @@ export default function DashboardPage() {
           )}
 
           {tab === "analytics" && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 className="font-heading text-lg font-bold text-doorway-dark mb-2">Analytics</h2>
-              <p className="text-doorway-gray text-sm mb-6">
-                Track how many people view your page.
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { label: "Page Views", value: "—" },
-                  { label: "QR Scans", value: "—" },
-                  { label: "Calls", value: "—" },
-                  { label: "Bookings", value: "—" },
-                ].map((stat, i) => (
-                  <div key={i} className="bg-gray-50 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-doorway-teal">{stat.value}</p>
-                    <p className="text-sm text-doorway-gray mt-1">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-doorway-gray mt-6 text-center">
-                Detailed analytics are available on the Premium plan ($19/mo).
-              </p>
-            </div>
-          )}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                          <h2 className="font-heading text-lg font-bold text-doorway-dark mb-2">Analytics</h2>
+                          <p className="text-doorway-gray text-sm mb-6">
+                            Track how people find and interact with your page.
+                          </p>
+
+                          {analyticsLoading ? (
+                            <div className="text-center py-8 text-doorway-gray">Loading analytics...</div>
+                          ) : !analytics || analytics.total_views === 0 && analytics.total_scans === 0 ? (
+                            <div className="text-center py-8">
+                              <div className="text-4xl mb-3">📊</div>
+                              <p className="text-doorway-gray font-medium">No scans yet</p>
+                              <p className="text-doorway-gray text-sm mt-1">
+                                Put your QR code on your truck to get started.
+                              </p>
+                            </div>
+                          ) : (
+                            <>
+                              {/* Stat cards */}
+                              <div className="grid grid-cols-3 gap-4 mb-8">
+                                {[
+                                  { label: "Total Views", value: analytics.total_views, today: analytics.views_today },
+                                  { label: "QR Scans", value: analytics.total_scans, today: analytics.scans_today },
+                                  { label: "Calls", value: analytics.total_calls, today: analytics.calls_today },
+                                ].map((stat, i) => (
+                                  <div key={i} className="bg-gray-50 rounded-xl p-4 text-center">
+                                    <p className="text-2xl font-bold text-doorway-teal">{stat.value}</p>
+                                    <p className="text-xs text-doorway-gray mt-1">{stat.label}</p>
+                                    <p className="text-xs text-green-600 mt-1">+{stat.today} today</p>
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* 7-day chart */}
+                              {analytics.views_by_day && analytics.views_by_day.some((d: any) => d.count > 0) && (
+                                <div className="mb-8">
+                                  <h3 className="text-sm font-semibold text-doorway-dark mb-3">Page Views (Last 7 Days)</h3>
+                                  <div className="bg-gray-50 rounded-xl p-4">
+                                    <ResponsiveContainer width="100%" height={200}>
+                                      <AreaChart data={analytics.views_by_day}>
+                                        <defs>
+                                          <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#1A7A7A" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#1A7A7A" stopOpacity={0} />
+                                          </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                                        <XAxis
+                                          dataKey="date"
+                                          tick={{ fontSize: 11, fill: "#6B7280" }}
+                                          tickFormatter={(val: string) => val.slice(5)}
+                                          stroke="#d1d5db"
+                                        />
+                                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#6B7280" }} stroke="#d1d5db" />
+                                        <Tooltip />
+                                        <Area
+                                          type="monotone"
+                                          dataKey="count"
+                                          stroke="#1A7A7A"
+                                          fill="url(#colorViews)"
+                                          strokeWidth={2}
+                                        />
+                                      </AreaChart>
+                                    </ResponsiveContainer>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Recent activity */}
+                              {analytics.recent && analytics.recent.length > 0 && (
+                                <div>
+                                  <h3 className="text-sm font-semibold text-doorway-dark mb-3">Recent Activity</h3>
+                                  <div className="space-y-2">
+                                    {analytics.recent.map((event: any, i: number) => (
+                                      <div key={i} className="flex items-center gap-3 text-sm bg-gray-50 rounded-lg px-4 py-2.5">
+                                        <span className={`w-2 h-2 rounded-full ${
+                                          event.type === "view" ? "bg-doorway-teal" :
+                                          event.type === "scan" ? "bg-doorway-amber" : "bg-green-500"
+                                        }`} />
+                                        <span className="font-medium text-doorway-dark capitalize">{event.type.replace("_", " ")}</span>
+                                        <span className="text-doorway-gray ml-auto text-xs">
+                                          {event.created_at ? new Date(event.created_at + "Z").toLocaleString() : "—"}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
 
           {tab === "settings" && (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
