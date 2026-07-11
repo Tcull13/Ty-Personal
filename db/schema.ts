@@ -12,6 +12,7 @@ export const storefronts = sqliteTable("storefronts", {
   description: text("description").default(""),
   slug: text("slug").notNull().unique(),
   passwordHash: text("password_hash").default(""),
+  plan: text("plan").default("free"),
   createdAt: text("created_at").default(""),
 });
 

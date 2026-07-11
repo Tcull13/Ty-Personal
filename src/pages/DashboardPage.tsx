@@ -100,6 +100,7 @@ export default function DashboardPage() {
             </svg>
             <span className="font-heading font-bold text-lg text-doorway-dark">Doorway</span>
             <span className="text-sm text-doorway-gray ml-2 hidden sm:inline">/ {biz.businessName}</span>
+            <span className="bg-doorway-amber/10 text-doorway-amber text-xs font-bold px-2 py-0.5 rounded-full">Free Plan</span>
           </div>
           <div className="flex items-center gap-4">
             <Link to={`/${biz.slug}`} className="text-doorway-teal text-sm font-semibold hover:underline">

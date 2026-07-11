@@ -123,22 +123,31 @@ router.post("/signup", async (req: Request, res: Response) => {
 /**
  * POST /api/auth/login
  * Verifies password and starts a session.
- * Body: { email, password }
+ * Body: { email, password } or { slug, password }
  */
 router.post("/login", async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, slug, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Missing email and password" });
+    if ((!email && !slug) || !password) {
+      return res.status(400).json({ error: "Missing email/slug and password" });
     }
 
-    // Find storefront by email
-    const biz = db
-      .select()
-      .from(storefronts)
-      .where(eq(storefronts.email, email))
-      .get();
+    // Find storefront by email or slug
+    let biz;
+    if (email) {
+      biz = db
+        .select()
+        .from(storefronts)
+        .where(eq(storefronts.email, email))
+        .get();
+    } else {
+      biz = db
+        .select()
+        .from(storefronts)
+        .where(eq(storefronts.slug, slug))
+        .get();
+    }
 
     if (!biz) {
       return res.status(401).json({ error: "Invalid credentials" });

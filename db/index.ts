@@ -45,4 +45,11 @@ try {
   // Column already exists — ignore
 }
 
+// Add plan column if it doesn't exist
+try {
+  sqlite.exec(`ALTER TABLE storefronts ADD COLUMN plan TEXT DEFAULT 'free'`);
+} catch {
+  // Column already exists — ignore
+}
+
 export const db = drizzle(sqlite, { schema });

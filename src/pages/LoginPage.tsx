@@ -4,7 +4,9 @@ import { useNavigate, Link } from "react-router-dom";
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [slug, setSlug] = useState("");
   const [password, setPassword] = useState("");
+  const [loginMode, setLoginMode] = useState<"email" | "slug">("email");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -26,17 +28,18 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    if (!email || !password) {
-      setError("Please enter your email and password.");
+    if ((!email && !slug) || !password) {
+      setError("Please enter your email or slug and password.");
       setLoading(false);
       return;
     }
 
     try {
+      const body = loginMode === "email" ? { email, password } : { slug, password };
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(body),
         credentials: "include",
       });
       const data = await res.json();
@@ -87,17 +90,55 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-semibold text-doorway-dark mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
-              placeholder="you@example.com"
-              autoComplete="email"
-            />
+          <div className="flex gap-2 mb-2">
+            <button
+              type="button"
+              onClick={() => setLoginMode("email")}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                loginMode === "email"
+                  ? "bg-doorway-teal text-white"
+                  : "bg-gray-100 text-doorway-gray hover:bg-gray-200"
+              }`}
+            >
+              Log in with Email
+            </button>
+            <button
+              type="button"
+              onClick={() => setLoginMode("slug")}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                loginMode === "slug"
+                  ? "bg-doorway-teal text-white"
+                  : "bg-gray-100 text-doorway-gray hover:bg-gray-200"
+              }`}
+            >
+              Log in with Slug
+            </button>
           </div>
+
+          {loginMode === "email" ? (
+            <div>
+              <label className="block text-sm font-semibold text-doorway-dark mb-1">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-semibold text-doorway-dark mb-1">Page URL (slug)</label>
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value.toLowerCase())}
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+                placeholder="your-business-name"
+              />
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-semibold text-doorway-dark mb-1">Password</label>
