@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -12,16 +12,11 @@ export default function SignupPage() {
     services: "",
     serviceArea: "",
     description: "",
+    password: "",
   });
   const [slug, setSlug] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
-
-  const updateField = (field: string, value: string) => {
-    const updated = { ...form, [field]: value };
-    setForm(updated);
-  };
 
   const handleNameChange = (value: string) => {
     setForm({ ...form, businessName: value });
@@ -40,21 +35,28 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
-    if (!form.businessName || !form.phone || !form.services) {
-      setError("Business name, phone, and services are required.");
+    if (!form.businessName || !form.phone || !form.services || !form.password) {
+      setError("Business name, phone, services, and password are required.");
+      setLoading(false);
+      return;
+    }
+
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters.");
       setLoading(false);
       return;
     }
 
     try {
-      const res = await fetch("/api/storefronts", {
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, slug }),
+        credentials: "include",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
-      setSuccess(true);
+      navigate("/dashboard", { replace: true });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -62,33 +64,9 @@ export default function SignupPage() {
     }
   };
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center">
-          <div className="text-5xl mb-4">🎉</div>
-          <h1 className="font-heading text-3xl font-bold text-doorway-dark mb-2">
-            Your storefront is live!
-          </h1>
-          <p className="text-doorway-gray mb-6">
-            Your page is ready at your unique link. Download your QR code to start promoting.
-          </p>
-          <Link
-            to={`/${slug}`}
-            className="block bg-doorway-teal text-white px-6 py-3 rounded-xl font-semibold hover:bg-doorway-teal-light transition-colors mb-3"
-          >
-            View Your Storefront
-          </Link>
-          <Link
-            to="/dashboard"
-            className="block border-2 border-doorway-teal text-doorway-teal px-6 py-3 rounded-xl font-semibold hover:bg-doorway-teal/5 transition-colors"
-          >
-            Go to Dashboard
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const updateField = (field: string, value: string) => {
+    setForm({ ...form, [field]: value });
+  };
 
   return (
     <div className="min-h-screen bg-doorway-light">
@@ -136,7 +114,7 @@ export default function SignupPage() {
             <input
               type="text"
               value={form.ownerName}
-              onChange={(e) => setForm({ ...form, ownerName: e.target.value })}
+              onChange={(e) => updateField("ownerName", e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
               placeholder="e.g. Jane Smith"
             />
@@ -147,18 +125,18 @@ export default function SignupPage() {
             <input
               type="tel"
               value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              onChange={(e) => updateField("phone", e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
               placeholder="(555) 123-4567"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-doorway-dark mb-1">Email</label>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Email *</label>
             <input
               type="email"
               value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              onChange={(e) => updateField("email", e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
               placeholder="you@example.com"
             />
@@ -169,7 +147,7 @@ export default function SignupPage() {
             <input
               type="url"
               value={form.website}
-              onChange={(e) => setForm({ ...form, website: e.target.value })}
+              onChange={(e) => updateField("website", e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
               placeholder="https://booksy.com/your-link"
             />
@@ -179,9 +157,9 @@ export default function SignupPage() {
             <label className="block text-sm font-semibold text-doorway-dark mb-1">Services *</label>
             <textarea
               value={form.services}
-              onChange={(e) => setForm({ ...form, services: e.target.value })}
+              onChange={(e) => updateField("services", e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
-              placeholder="List your services, one per line:&#10;Drain Cleaning&#10;Pipe Repair&#10;Water Heater Installation"
+              placeholder="List your services, one per line:\nDrain Cleaning\nPipe Repair\nWater Heater Installation"
               rows={4}
             />
           </div>
@@ -191,7 +169,7 @@ export default function SignupPage() {
             <input
               type="text"
               value={form.serviceArea}
-              onChange={(e) => setForm({ ...form, serviceArea: e.target.value })}
+              onChange={(e) => updateField("serviceArea", e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
               placeholder="e.g. Portland, OR and surrounding areas"
             />
@@ -201,7 +179,7 @@ export default function SignupPage() {
             <label className="block text-sm font-semibold text-doorway-dark mb-1">Short Description</label>
             <textarea
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) => updateField("description", e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
               placeholder="A short blurb about your business"
               rows={2}
@@ -221,6 +199,19 @@ export default function SignupPage() {
             </div>
           </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-doorway-dark mb-1">Password *</label>
+            <input
+              type="password"
+              value={form.password}
+              onChange={(e) => updateField("password", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-doorway-teal focus:border-transparent"
+              placeholder="At least 8 characters"
+              autoComplete="new-password"
+            />
+            <p className="text-xs text-doorway-gray mt-1">Used to log in to your dashboard.</p>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -230,7 +221,14 @@ export default function SignupPage() {
           </button>
         </form>
 
-        <p className="text-xs text-doorway-gray text-center mt-6">
+        <p className="text-center text-sm text-doorway-gray mt-6">
+          Already have an account?{" "}
+          <Link to="/login" className="text-doorway-teal font-semibold hover:underline">
+            Log in
+          </Link>
+        </p>
+
+        <p className="text-xs text-doorway-gray text-center mt-4">
           By signing up, you agree to our Terms of Service and Privacy Policy.
           Your storefront includes "Powered by Doorway" branding on the free plan.
         </p>

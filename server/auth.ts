@@ -123,21 +123,21 @@ router.post("/signup", async (req: Request, res: Response) => {
 /**
  * POST /api/auth/login
  * Verifies password and starts a session.
- * Body: { slug, password }
+ * Body: { email, password }
  */
 router.post("/login", async (req: Request, res: Response) => {
   try {
-    const { slug, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!slug || !password) {
-      return res.status(400).json({ error: "Missing slug and password" });
+    if (!email || !password) {
+      return res.status(400).json({ error: "Missing email and password" });
     }
 
-    // Find storefront
+    // Find storefront by email
     const biz = db
       .select()
       .from(storefronts)
-      .where(eq(storefronts.slug, slug))
+      .where(eq(storefronts.email, email))
       .get();
 
     if (!biz) {
