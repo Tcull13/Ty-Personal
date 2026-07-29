@@ -1,19 +1,29 @@
 import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
+import {
+  Smartphone,
+  Store,
+  QrCode,
+  Wrench,
+  Clock,
+  TrendingUp,
+  ShieldCheck,
+  ChevronRight,
+} from "lucide-react";
 
 const steps = [
   {
-    icon: "📱",
+    icon: Smartphone,
     title: "Sign up free",
     desc: "Enter your business name, phone, services, and area. Takes 30 seconds.",
   },
   {
-    icon: "🏪",
+    icon: Store,
     title: "Get your storefront",
     desc: "A professional mobile page with your services, contact info, and booking link.",
   },
   {
-    icon: "📷",
+    icon: QrCode,
     title: "Download your QR code",
     desc: "Print it on your truck, uniform, flyers, and invoices. Customers scan and book.",
   },
@@ -30,6 +40,14 @@ const exampleBiz = {
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
+      {/* Trust signal bar */}
+      <div className="bg-doorway-teal text-white py-2.5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center gap-2 text-sm font-medium">
+          <ShieldCheck className="w-4 h-4" />
+          Join 100+ local businesses already on Doorway — always free, always professional.
+        </div>
+      </div>
+
       {/* Navigation */}
       <nav className="border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -42,6 +60,9 @@ export default function LandingPage() {
             <span className="font-heading font-bold text-xl text-doorway-dark">Doorway</span>
           </div>
           <div className="flex items-center gap-4">
+            <Link to="/login" className="text-doorway-gray text-sm font-medium hover:text-doorway-dark transition-colors">
+              Log in
+            </Link>
             <Link to="/signup" className="bg-doorway-teal text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-doorway-teal-light transition-colors">
               Get Your Free Page
             </Link>
@@ -50,7 +71,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 text-center">
         <h1 className="font-heading text-5xl sm:text-6xl font-extrabold text-doorway-dark leading-tight">
           Your business card.
           <br />
@@ -61,12 +82,25 @@ export default function LandingPage() {
           and landscapers. Looks professional. Gets you more calls. Zero effort.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-          <Link to="/signup" className="bg-doorway-teal text-white px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-doorway-teal-light transition-colors shadow-lg shadow-doorway-teal/20">
+          <Link to="/signup" className="bg-doorway-teal text-white px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-doorway-teal-light transition-colors shadow-lg shadow-doorway-teal/20 inline-flex items-center gap-2">
             Create Your Free Page
+            <ChevronRight className="w-5 h-5" />
           </Link>
           <a href="#how-it-works" className="border-2 border-gray-200 text-doorway-dark px-8 py-3.5 rounded-xl font-semibold text-lg hover:border-doorway-teal hover:text-doorway-teal transition-colors">
             How It Works
           </a>
+        </div>
+
+        {/* Hero demo QR */}
+        <div className="mt-10 inline-flex items-center gap-4 bg-doorway-light rounded-2xl px-6 py-4 border border-gray-100">
+          <div className="bg-white p-2 rounded-xl shadow-sm">
+            <QRCodeSVG value="https://doorway.app/example" size={56} />
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-semibold text-doorway-dark">See a live demo</p>
+            <p className="text-xs text-doorway-gray">Scan this QR code with your phone</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-doorway-gray hidden sm:block" />
         </div>
       </section>
 
@@ -78,7 +112,7 @@ export default function LandingPage() {
           </div>
           <div className="p-6 text-center">
             <div className="w-16 h-16 bg-doorway-amber/10 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl">🔧</span>
+              <Wrench className="w-8 h-8 text-doorway-amber" />
             </div>
             <h3 className="font-heading font-bold text-xl text-doorway-dark">{exampleBiz.name}</h3>
             <div className="flex items-center justify-center gap-1 mt-1">
@@ -128,7 +162,9 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((step, i) => (
               <div key={i} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
-                <div className="text-4xl mb-4">{step.icon}</div>
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-doorway-teal/10 rounded-xl mb-4">
+                  <step.icon className="w-7 h-7 text-doorway-teal" />
+                </div>
                 <div className="bg-doorway-teal/10 text-doorway-teal text-sm font-bold rounded-full px-3 py-1 inline-block mb-3">
                   Step {i + 1}
                 </div>
@@ -149,7 +185,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="flex gap-4">
               <div className="w-12 h-12 bg-doorway-teal/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                <span className="text-doorway-teal text-xl">📸</span>
+                <Smartphone className="w-6 h-6 text-doorway-teal" />
               </div>
               <div>
                 <h3 className="font-heading font-bold text-lg text-doorway-dark">Looks professional</h3>
@@ -158,7 +194,7 @@ export default function LandingPage() {
             </div>
             <div className="flex gap-4">
               <div className="w-12 h-12 bg-doorway-amber/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                <span className="text-doorway-amber text-xl">⏱️</span>
+                <Clock className="w-6 h-6 text-doorway-amber" />
               </div>
               <div>
                 <h3 className="font-heading font-bold text-lg text-doorway-dark">Takes 30 seconds</h3>
@@ -167,7 +203,7 @@ export default function LandingPage() {
             </div>
             <div className="flex gap-4">
               <div className="w-12 h-12 bg-doorway-teal/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                <span className="text-doorway-teal text-xl">🆓</span>
+                <ShieldCheck className="w-6 h-6 text-doorway-teal" />
               </div>
               <div>
                 <h3 className="font-heading font-bold text-lg text-doorway-dark">Always free</h3>
@@ -176,7 +212,7 @@ export default function LandingPage() {
             </div>
             <div className="flex gap-4">
               <div className="w-12 h-12 bg-doorway-amber/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                <span className="text-doorway-amber text-xl">📊</span>
+                <TrendingUp className="w-6 h-6 text-doorway-amber" />
               </div>
               <div>
                 <h3 className="font-heading font-bold text-lg text-doorway-dark">Track your growth</h3>
@@ -221,8 +257,9 @@ export default function LandingPage() {
           <p className="text-doorway-gray mb-8">
             Your QR code on your truck is seen by hundreds of people every day. Make every glance a customer.
           </p>
-          <Link to="/signup" className="bg-doorway-teal text-white px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-doorway-teal-light transition-colors shadow-lg shadow-doorway-teal/20 inline-block">
+          <Link to="/signup" className="bg-doorway-teal text-white px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-doorway-teal-light transition-colors shadow-lg shadow-doorway-teal/20 inline-flex items-center gap-2">
             Create Your Free Page Now
+            <ChevronRight className="w-5 h-5" />
           </Link>
         </div>
       </section>

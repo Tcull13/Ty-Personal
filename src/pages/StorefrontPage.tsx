@@ -159,10 +159,14 @@ export default function StorefrontPage() {
         {/* Footer */}
         {biz.plan !== "premium" && (
           <div className="bg-gray-50 px-6 py-3 text-center border-t border-gray-100">
-            <p className="text-xs text-doorway-gray">
+            <p className="text-xs text-doorway-gray mb-1">
               Powered by{" "}
               <Link to="/" className="text-doorway-teal font-semibold hover:underline">Doorway</Link>
+              {" "}— free storefronts for local businesses
             </p>
+            <Link to="/signup" className="inline-flex items-center gap-1 text-xs text-doorway-amber font-semibold hover:underline">
+              Get your free page →
+            </Link>
           </div>
         )}
       </div>
