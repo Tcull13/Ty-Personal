@@ -14,6 +14,9 @@ export const storefronts = sqliteTable("storefronts", {
   slug: text("slug").notNull().unique(),
   passwordHash: text("password_hash").default(""),
   plan: text("plan").default("free"),
+  stripeCustomerId: text("stripe_customer_id").default(""),
+  stripeSubscriptionId: text("stripe_subscription_id").default(""),
+  subscriptionStatus: text("subscription_status").default(""),
   createdAt: text("created_at").default(sql`(datetime('now'))`),
 });
 

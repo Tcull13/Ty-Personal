@@ -4,6 +4,7 @@ import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import StorefrontPage from "./pages/StorefrontPage";
 import DashboardPage from "./pages/DashboardPage";
+import UpgradePage from "./pages/UpgradePage";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/upgrade" element={<UpgradePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/:slug" element={<StorefrontPage />} />
       </Routes>

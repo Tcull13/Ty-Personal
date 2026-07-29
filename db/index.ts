@@ -54,5 +54,8 @@ sqlite.exec(`
 // Migrations for existing DBs
 try { sqlite.exec(`ALTER TABLE storefronts ADD COLUMN password_hash TEXT DEFAULT ''`); } catch {}
 try { sqlite.exec(`ALTER TABLE storefronts ADD COLUMN plan TEXT DEFAULT 'free'`); } catch {}
+try { sqlite.exec(`ALTER TABLE storefronts ADD COLUMN stripe_customer_id TEXT DEFAULT ''`); } catch {}
+try { sqlite.exec(`ALTER TABLE storefronts ADD COLUMN stripe_subscription_id TEXT DEFAULT ''`); } catch {}
+try { sqlite.exec(`ALTER TABLE storefronts ADD COLUMN subscription_status TEXT DEFAULT ''`); } catch {}
 
 export const db = drizzle(sqlite, { schema });

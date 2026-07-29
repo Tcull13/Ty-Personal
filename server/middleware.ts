@@ -13,6 +13,7 @@ declare global {
         phone: string;
         email: string | null;
         slug: string;
+        plan: string;
       };
       sessionToken?: string;
     }
@@ -26,6 +27,7 @@ export interface AuthRequest extends Request {
     phone: string;
     email: string | null;
     slug: string;
+    plan: string;
   };
 }
 
@@ -79,6 +81,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
         phone: storefronts.phone,
         email: storefronts.email,
         slug: storefronts.slug,
+        plan: storefronts.plan,
       })
       .from(storefronts)
       .where(eq(storefronts.id, session.storefrontId))

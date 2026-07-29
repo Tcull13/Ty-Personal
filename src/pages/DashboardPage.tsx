@@ -21,6 +21,7 @@ interface Storefront {
   serviceArea: string | null;
   description: string | null;
   slug: string;
+  plan?: string;
 }
 
 export default function DashboardPage() {
@@ -32,6 +33,7 @@ export default function DashboardPage() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [analytics, setAnalytics] = useState<any>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const upgradeSuccess = searchParams.get("upgrade") === "success";
 
   // Check auth on page load
   useEffect(() => {
@@ -126,12 +128,24 @@ export default function DashboardPage() {
             </svg>
             <span className="font-heading font-bold text-lg text-doorway-dark">Doorway</span>
             <span className="text-sm text-doorway-gray ml-2 hidden sm:inline">/ {biz.businessName}</span>
-            <span className="bg-doorway-amber/10 text-doorway-amber text-xs font-bold px-2 py-0.5 rounded-full">Free Plan</span>
+            {biz.plan === "premium" ? (
+              <span className="bg-doorway-amber text-white text-xs font-bold px-2 py-0.5 rounded-full">Premium</span>
+            ) : (
+              <span className="bg-doorway-amber/10 text-doorway-amber text-xs font-bold px-2 py-0.5 rounded-full">Free Plan</span>
+            )}
           </div>
           <div className="flex items-center gap-4">
             <Link to={`/${biz.slug}`} className="text-doorway-teal text-sm font-semibold hover:underline">
               View Your Page ↗
             </Link>
+            {biz.plan !== "premium" && (
+              <Link
+                to="/upgrade"
+                className="bg-doorway-amber text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-doorway-amber-light transition-colors"
+              >
+                Upgrade
+              </Link>
+            )}
             <button
               onClick={handleLogout}
               disabled={loggingOut}
@@ -144,6 +158,17 @@ export default function DashboardPage() {
       </nav>
 
       <div className="max-w-5xl mx-auto px-4 py-8">
+        {/* Upgrade success banner */}
+        {upgradeSuccess && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+            <span className="text-2xl">🎉</span>
+            <div>
+              <p className="text-green-800 font-semibold">You're now a Doorway Premium member!</p>
+              <p className="text-green-700 text-sm">Your storefront is now ad-free with all premium features.</p>
+            </div>
+          </div>
+        )}
+
         <h1 className="font-heading text-2xl font-bold text-doorway-dark mb-6">Dashboard</h1>
 
         {/* Tabs */}

@@ -9,12 +9,17 @@ import { eq } from "drizzle-orm";
 import authRoutes from "./auth.js";
 import qrRoutes from "./qr.js";
 import analyticsRoutes from "./analytics.js";
+import stripeRoutes, { webhookRouter } from "./stripe.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = 3000;
 
 app.use(cors({ origin: true, credentials: true }));
+
+// Stripe webhook needs raw body — mount BEFORE express.json()
+app.use("/", webhookRouter);
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -30,6 +35,9 @@ app.use("/api", qrRoutes);
 
 // Analytics routes (scan tracking + analytics data)
 app.use("/api", analyticsRoutes);
+
+// Stripe routes (upgrade + webhook)
+app.use("/", stripeRoutes);
 
 // GET all storefronts (for dashboard lookup — public)
 app.get("/api/storefronts", (_req, res) => {

@@ -12,6 +12,7 @@ interface Storefront {
   serviceArea: string | null;
   description: string | null;
   slug: string;
+  plan?: string;
 }
 
 function trackScan(slug: string, type: "view" | "scan" | "call_click") {
@@ -156,12 +157,14 @@ export default function StorefrontPage() {
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-6 py-3 text-center border-t border-gray-100">
-          <p className="text-xs text-doorway-gray">
-            Powered by{" "}
-            <Link to="/" className="text-doorway-teal font-semibold hover:underline">Doorway</Link>
-          </p>
-        </div>
+        {biz.plan !== "premium" && (
+          <div className="bg-gray-50 px-6 py-3 text-center border-t border-gray-100">
+            <p className="text-xs text-doorway-gray">
+              Powered by{" "}
+              <Link to="/" className="text-doorway-teal font-semibold hover:underline">Doorway</Link>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
