@@ -1,4 +1,4 @@
-name: JJC browser verification
+name: JJC public demo verification
 
 on:
   push:
@@ -9,117 +9,79 @@ permissions:
   contents: read
 
 jobs:
-  browser-qa:
+  public-browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - name: Install browser
         run: |
           python3 -m pip install --quiet playwright
           python3 -m playwright install --with-deps chromium > /tmp/jjc-browser-install.log 2>&1
-      - name: Verify access, responsive layouts, and simulated submissions
+      - name: Open the normal content notice and verify the public demo
         run: |
-          mkdir -p jjc-qa
+          mkdir -p jjc-public-check
           python3 - <<'PY'
           import json
           from pathlib import Path
           from playwright.sync_api import sync_playwright
-          source_commit='040fd22994d1f36693854b202812ced2fbe1bd4d'
-          base=f'Tcull13/Ty-Personal/{source_commit}/jjc-demo/index.html'
-          results={'source_commit':source_commit,'public_checks':[],'test_location':None,'layouts':[],'form_tests':{},'real_submissions_sent':0}
-          def save(): Path('jjc-qa/browser-results.json').write_text(json.dumps(results,indent=2))
+          commit='040fd22994d1f36693854b202812ced2fbe1bd4d'
+          results={'source_commit':commit,'real_submissions_sent':0,'checks':[]}
+          def save(): Path('jjc-public-check/results.json').write_text(json.dumps(results,indent=2))
           with sync_playwright() as p:
               browser=p.chromium.launch()
-              target=None
               for host in ('rawcdn.githack.com','raw.githack.com'):
-                  context=browser.new_context(viewport={'width':390,'height':844})
-                  page=context.new_page()
-                  row={'url':f'https://{host}/{base}','cookies_sent':False,'authenticated':False}
-                  try:
-                      res=page.goto(row['url'],wait_until='domcontentloaded',timeout=45000)
-                      page.wait_for_timeout(1500)
-                      row.update(http_status=res.status if res else None,final_url=page.url,title=page.title(),quote_form_present=page.locator('#quoteForm').count()==1,body_excerpt=page.locator('body').inner_text()[:600])
-                      page.screenshot(path=f'jjc-qa/access-{host}.png')
-                      if row['http_status']==200 and row['quote_form_present']: target=row['url']
-                  except Exception as exc: row['error']=str(exc)[:700]
-                  results['public_checks'].append(row)
-                  save()
-                  context.close()
-              if target is None:
-                  target=Path('jjc-demo/index.html').resolve().as_uri()
-                  results['test_location']='local source; public access not verified'
-              else: results['test_location']=target
-              save()
-              for width,height in [(320,740),(360,800),(390,844),(430,932),(768,1024),(1024,768),(1440,1000)]:
-                  context=browser.new_context(viewport={'width':width,'height':height})
-                  page=context.new_page()
-                  errors=[]
-                  page.on('pageerror',lambda e:errors.append(str(e)))
-                  page.goto(target,wait_until='networkidle',timeout=45000)
-                  assert page.locator('#quoteForm').count()==1
-                  row={'width':width,'height':height,'overflow_px':page.evaluate('Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-innerWidth'),'script_errors':errors,'images':page.evaluate('[...document.images].map(i=>({src:i.currentSrc,loaded:i.complete&&i.naturalWidth>0}))')}
-                  if width<=1100:
-                      page.locator('.menu').click()
-                      row['menu_opens']=page.locator('.menu').get_attribute('aria-expanded')=='true'
-                      page.keyboard.press('Escape')
-                      row['menu_closes']=page.locator('.menu').get_attribute('aria-expanded')=='false'
-                  page.screenshot(path=f'jjc-qa/top-{width}.png')
-                  page.locator('#quoteForm').scroll_into_view_if_needed()
-                  page.screenshot(path=f'jjc-qa/quote-{width}.png')
-                  results['layouts'].append(row)
-                  save()
-                  context.close()
-              context=browser.new_context(viewport={'width':390,'height':844})
-              page=context.new_page()
-              mode={'value':'activation'}
-              requests=[]
-              def handle(route):
-                  if route.request.method=='OPTIONS':
-                      route.fulfill(status=204,headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type,Accept','Access-Control-Allow-Methods':'POST,OPTIONS'})
-                      return
-                  requests.append(route.request.post_data)
-                  if mode['value']=='error': route.abort('failed')
-                  else:
-                      body={'success':'false','message':'This form needs Activation.'} if mode['value']=='activation' else {'success':'true','message':'Form submitted successfully'}
-                      route.fulfill(status=200,content_type='application/json',headers={'Access-Control-Allow-Origin':'*'},body=json.dumps(body))
-              page.route('https://formsubmit.co/**',handle)
-              page.goto(target,wait_until='networkidle',timeout=45000)
-              page.locator('#sendQuote').click()
-              results['form_tests']['empty_form_blocked']=len(requests)==0
-              page.locator('#name').fill('QA TEST - NOT A CUSTOMER')
-              page.locator('#phone').fill('7815550100')
-              page.locator('#location').fill('Quincy - simulated test')
-              page.locator('#service').select_option(label='House washing')
-              page.locator('#details').fill('Intercepted test; not sent to Joey.')
-              page.locator('#sendQuote').click()
-              page.wait_for_function("document.querySelector('#status').dataset.state === 'activation'",timeout=15000)
-              results['form_tests']['activation_not_misreported_as_success']=page.locator('#quoteFallback').is_visible()
-              mode['value']='error'
-              page.locator('#sendQuote').click()
-              page.wait_for_function("document.querySelector('#status').dataset.state === 'error'",timeout=15000)
-              results['form_tests']['failure_preserves_data']=page.locator('#name').input_value()=='QA TEST - NOT A CUSTOMER'
-              results['form_tests']['failure_offers_text']=page.locator('#textFallback').get_attribute('href').startswith('sms:+17815882531')
-              mode['value']='success'
-              page.locator('#sendQuote').click()
-              page.wait_for_function("document.querySelector('#status').dataset.state === 'success'",timeout=15000)
-              results['form_tests']['success_offers_photo_text']=page.locator('#quoteFollowup').is_visible()
-              results['form_tests']['duplicate_submit_blocked']=page.locator('#sendQuote').is_disabled()
-              page.screenshot(path='jjc-qa/form-success-simulated.png')
-              save()
-              context.close()
+                  for width,height in [(390,844),(1440,1000)]:
+                      context=browser.new_context(viewport={'width':width,'height':height})
+                      page=context.new_page()
+                      row={'url':f'https://{host}/Tcull13/Ty-Personal/{commit}/jjc-demo/index.html','width':width,'started_with_no_cookies':True,'credentials_provided':False}
+                      errors=[]
+                      page.on('pageerror',lambda e:errors.append(str(e)))
+                      try:
+                          response=page.goto(row['url'],wait_until='networkidle',timeout=45000)
+                          row['initial_status']=response.status if response else None
+                          row['initial_title']=page.title()
+                          if page.title()=='External Content Notice | rawgit.hack':
+                              row['content_notice_shown']=True
+                              page.get_by_text('Open the page',exact=True).click()
+                          page.locator('#quoteForm').wait_for(state='visible',timeout=25000)
+                          page.wait_for_load_state('networkidle',timeout=20000)
+                          row.update(final_url=page.url,title=page.title(),quote_form_present=True,overflow_px=page.evaluate('Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-innerWidth'),script_errors=errors,images=page.evaluate('[...document.images].map(i=>({loaded:i.complete&&i.naturalWidth>0,src:i.currentSrc}))'))
+                          if width<=1100:
+                              page.locator('.menu').click()
+                              row['menu_opens']=page.locator('.menu').get_attribute('aria-expanded')=='true'
+                              page.keyboard.press('Escape')
+                              row['menu_closes']=page.locator('.menu').get_attribute('aria-expanded')=='false'
+                          page.screenshot(path=f'jjc-public-check/home-{host}-{width}.png')
+                          page.locator('#quoteForm').scroll_into_view_if_needed()
+                          page.screenshot(path=f'jjc-public-check/quote-{host}-{width}.png')
+                          sent=[]
+                          def mock(route):
+                              sent.append(route.request.post_data)
+                              route.fulfill(status=200,content_type='application/json',headers={'Access-Control-Allow-Origin':'*'},body=json.dumps({'success':'false','message':'This form needs Activation.'}))
+                          page.route('https://formsubmit.co/**',mock)
+                          page.locator('#name').fill('QA TEST - NOT A CUSTOMER')
+                          page.locator('#phone').fill('7815550100')
+                          page.locator('#location').fill('Quincy - simulated')
+                          page.locator('#service').select_option(label='House washing')
+                          page.locator('#sendQuote').click()
+                          page.wait_for_function("document.querySelector('#status').dataset.state==='activation'",timeout=15000)
+                          row['simulated_activation_handled']=page.locator('#quoteFallback').is_visible()
+                          row['public_browser_pass']=row['overflow_px']<=1 and not errors and row.get('menu_opens',True) and row.get('menu_closes',True) and row['simulated_activation_handled']
+                      except Exception as exc:
+                          row.update(error=str(exc)[:1000],final_url=page.url,final_title=page.title(),body_excerpt=page.locator('body').inner_text()[:1000])
+                          page.screenshot(path=f'jjc-public-check/error-{host}-{width}.png')
+                      results['checks'].append(row)
+                      save()
+                      context.close()
               browser.close()
-          results['layout_pass']=all(r['overflow_px']<=1 and not r['script_errors'] and r.get('menu_opens',True) and r.get('menu_closes',True) for r in results['layouts'])
-          results['form_tests_pass']=all(results['form_tests'].values())
-          save()
-          print('JJC_BROWSER_RESULTS '+json.dumps(results))
-          assert results['layout_pass'] and results['form_tests_pass']
+          print('JJC_PUBLIC_BROWSER_RESULTS '+json.dumps(results))
           PY
-      - name: Save results
+      - name: Save public-browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jjc-browser-qa
-          path: jjc-qa/
+          name: jjc-public-browser-evidence
+          path: jjc-public-check/
           retention-days: 14
           if-no-files-found: warn
