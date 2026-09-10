@@ -1,0 +1,135 @@
+name: JJC inline repair and browser QA
+
+on:
+  push:
+    branches: [jjc-demo-site]
+    paths: ['.github/workflows/jjc-inline-repair.yml']
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Embed the existing quote script in the homepage
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('jjc-demo/index.html')
+          html = p.read_text()
+          tag = '<script src="quote-form.js" defer></script>'
+          if tag in html:
+              js = Path('jjc-demo/quote-form.js').read_text()
+              assert '</script' not in js.lower()
+              html = html.replace(tag, '')
+              assert html.count('</body>') == 1
+              html = html.replace('</body>', '<script>\n' + js + '\n</script>\n</body>')
+              p.write_text(html)
+          assert 'script src="quote-form.js"' not in html
+          assert 'const endpoint =' in html
+          print('Inline quote form repair complete; no external JavaScript dependency.')
+          PY
+          node --check jjc-demo/quote-form.js
+          if ! git diff --quiet -- jjc-demo/index.html; then
+            git add jjc-demo/index.html
+            git -c user.name='JJC Website Build' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'JJC: inline quote form to eliminate blocked script request'
+            git push origin HEAD:jjc-demo-site
+          fi
+          echo "JJC_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Install browser test tools
+        run: |
+          python3 -m pip install --quiet playwright
+          python3 -m playwright install --with-deps chromium > /tmp/jjc-browser-install.log 2>&1
+      - name: Test the public page in anonymous browser sessions
+        run: |
+          mkdir -p jjc-qa
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          url = f"https://rawcdn.githack.com/{os.environ['GITHUB_REPOSITORY']}/{os.environ['JJC_COMMIT']}/jjc-demo/index.html"
+          results = {'url': url, 'commit': os.environ['JJC_COMMIT'], 'authenticated': False, 'real_customer_submissions_sent': 0, 'layouts': [], 'form_tests': {}}
+          with sync_playwright() as p:
+              browser = p.chromium.launch()
+              for width, height in [(320,740),(360,800),(390,844),(430,932),(768,1024),(1024,768),(1440,1000)]:
+                  context = browser.new_context(viewport={'width':width,'height':height})
+                  page = context.new_page()
+                  errors = []
+                  page.on('pageerror', lambda e: errors.append(str(e)))
+                  response = page.goto(url, wait_until='networkidle', timeout=60000)
+                  assert response and response.status == 200
+                  assert 'JJC' in page.title() and page.locator('#quoteForm').count() == 1
+                  page.locator('#quoteForm').scroll_into_view_if_needed()
+                  page.wait_for_timeout(300)
+                  metrics = page.evaluate('''() => ({width:innerWidth, documentWidth:document.documentElement.scrollWidth, bodyWidth:document.body.scrollWidth, images:[...document.images].map(i=>({src:i.currentSrc, loaded:i.complete&&i.naturalWidth>0}))})''')
+                  overflow = max(metrics['documentWidth'], metrics['bodyWidth']) - width
+                  menu_ok = True
+                  if width <= 1100:
+                      page.locator('.menu').click()
+                      menu_ok = page.locator('.menu').get_attribute('aria-expanded') == 'true'
+                      page.keyboard.press('Escape')
+                      menu_ok = menu_ok and page.locator('.menu').get_attribute('aria-expanded') == 'false'
+                  results['layouts'].append({'width':width,'height':height,'overflow_px':overflow,'menu_ok':menu_ok,'javascript_errors':errors,'images_loaded':sum(i['loaded'] for i in metrics['images']),'images_total':len(metrics['images'])})
+                  if width in (390,1440):
+                      page.locator('#quoteForm').scroll_into_view_if_needed()
+                      page.screenshot(path=f'jjc-qa/quote-{width}.png')
+                  assert overflow <= 1, f'Horizontal overflow at {width}: {overflow}'
+                  assert menu_ok and not errors
+                  context.close()
+              context = browser.new_context(viewport={'width':390,'height':844})
+              page = context.new_page()
+              response_mode = {'value':'activation'}
+              requests = []
+              def handle(route):
+                  requests.append(route.request.post_data)
+                  if response_mode['value'] == 'error':
+                      route.abort('failed')
+                  elif response_mode['value'] == 'activation':
+                      route.fulfill(status=200, content_type='application/json', body=json.dumps({'success':'false','message':'This form needs Activation. Check your inbox.'}))
+                  else:
+                      route.fulfill(status=200, content_type='application/json', body=json.dumps({'success':'true','message':'Form submitted successfully'}))
+              page.route('https://formsubmit.co/**', handle)
+              def fill():
+                  page.locator('#name').fill('QA TEST - NOT A CUSTOMER')
+                  page.locator('#phone').fill('7815550100')
+                  page.locator('#location').fill('Quincy - automated test')
+                  page.locator('#service').select_option(label='House washing')
+                  page.locator('#details').fill('Simulated browser test. Not sent to Joey.')
+              page.goto(url, wait_until='networkidle')
+              page.locator('#sendQuote').click()
+              assert len(requests) == 0
+              results['form_tests']['invalid_form_blocked'] = True
+              fill()
+              page.locator('#sendQuote').click()
+              page.wait_for_function("document.querySelector('#status').dataset.state === 'activation'")
+              assert page.locator('#quoteFallback').is_visible()
+              results['form_tests']['activation_not_misreported_as_success'] = True
+              response_mode['value'] = 'error'
+              page.locator('#sendQuote').click()
+              page.wait_for_function("document.querySelector('#status').dataset.state === 'error'")
+              assert page.locator('#name').input_value() == 'QA TEST - NOT A CUSTOMER'
+              assert page.locator('#textFallback').get_attribute('href').startswith('sms:+17815882531')
+              results['form_tests']['failed_request_preserves_details_and_sms_fallback'] = True
+              response_mode['value'] = 'success'
+              page.locator('#sendQuote').click()
+              page.wait_for_function("document.querySelector('#status').dataset.state === 'success'")
+              assert page.locator('#quoteFollowup').is_visible()
+              assert page.locator('#sendQuote').is_disabled()
+              results['form_tests']['accepted_request_shows_photo_text_option'] = True
+              results['form_tests']['duplicate_submit_disabled'] = True
+              assert all('QA TEST' in data for data in requests)
+              context.close()
+              browser.close()
+          Path('jjc-qa/browser-results.json').write_text(json.dumps(results,indent=2))
+          print('JJC_BROWSER_RESULTS ' + json.dumps(results))
+          PY
+      - name: Save browser results and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jjc-browser-qa
+          path: jjc-qa/
+          retention-days: 14
+          if-no-files-found: warn
