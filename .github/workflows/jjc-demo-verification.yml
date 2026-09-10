@@ -1,0 +1,106 @@
+name: JJC demo verification
+
+on:
+  push:
+    branches: [jjc-demo-site]
+    paths:
+      - '.github/workflows/jjc-demo-verification.yml'
+      - 'jjc-demo/**'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check website source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html = Path('jjc-demo/index.html').read_text()
+          js = Path('jjc-demo/quote-form.js').read_text()
+          assert '<!doctype html>' in html.lower()
+          assert 'joeyharrington516@gmail.com' in html
+          assert 'quoteForm' in html
+          assert 'https://formsubmit.co/ajax/joeyharrington516@gmail.com' in js
+          assert 'credentials: \'omit\'' in js
+          print('PASS: complete homepage, correct recipient, quote form and email script.')
+          PY
+          node --check jjc-demo/quote-form.js
+      - name: Verify public access without login or cookies
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import json, os, time, urllib.request, urllib.error
+          from pathlib import Path
+          repo, sha = os.environ['REPOSITORY'], os.environ['COMMIT']
+          reports = []
+          for host in ('raw.githack.com', 'rawcdn.githack.com'):
+              url = f'https://{host}/{repo}/{sha}/jjc-demo/index.html'
+              report = {'url': url, 'authenticated': False, 'cookies_sent': False}
+              try:
+                  req = urllib.request.Request(url, headers={'User-Agent': 'JJC-website-public-access-check/1.0'})
+                  with urllib.request.urlopen(req, timeout=35) as response:
+                      html = response.read().decode('utf-8', 'replace')
+                      report.update(status=response.status, final_url=response.url,
+                          content_type=response.headers.get('Content-Type', ''),
+                          complete_homepage='<main' in html and 'quoteForm' in html,
+                          correct_recipient='joeyharrington516@gmail.com' in html,
+                          login_page='Authentication Required' in html or '<title>Login' in html)
+                      script_url = url.rsplit('/', 1)[0] + '/quote-form.js'
+                      with urllib.request.urlopen(script_url, timeout=25) as script:
+                          code = script.read().decode('utf-8', 'replace')
+                          report['quote_script_ok'] = script.status == 200 and 'formsubmit.co/ajax/' in code
+              except Exception as exc:
+                  report['error'] = str(exc)
+              print(json.dumps(report))
+              reports.append(report)
+          Path('jjc-access-receipt.json').write_text(json.dumps(reports, indent=2))
+          PY
+      - name: One-time labeled owner activation request
+        if: github.event.head_commit.message == 'JJC: verify public demo and request email activation once'
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import datetime, json, os, urllib.request
+          from pathlib import Path
+          url = f"https://rawcdn.githack.com/{os.environ['REPOSITORY']}/{os.environ['COMMIT']}/jjc-demo/index.html"
+          payload = {
+              'name': 'JJC website setup test — NOT A CUSTOMER LEAD',
+              'message': 'Joey: this is the single website email-setup test for the JJC demo Ty is building. This is NOT a customer quote and no customer information is included. If FormSubmit sends an activation email, confirm it. After activation, please submit one clearly labeled test quote and verify it reaches your inbox before relying on this form. Inbox delivery cannot be verified by the website.',
+              '_subject': 'JJC website email setup — test only, not a customer lead',
+              '_template': 'table',
+              '_honey': '',
+              'website': url,
+              'submitted_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat()
+          }
+          receipt = {'recipient': 'joeyharrington516@gmail.com', 'type': 'one-time setup test', 'inbox_delivery_verified': False}
+          try:
+              request = urllib.request.Request('https://formsubmit.co/ajax/joeyharrington516@gmail.com',
+                  data=json.dumps(payload).encode(), method='POST',
+                  headers={'Content-Type': 'application/json', 'Accept': 'application/json',
+                           'Referer': url, 'User-Agent': 'JJC-website-setup/1.0'})
+              with urllib.request.urlopen(request, timeout=35) as response:
+                  receipt.update(http_status=response.status, service_response=response.read().decode('utf-8', 'replace')[:3000])
+          except Exception as exc:
+              receipt['error'] = str(exc)
+          Path('jjc-email-setup-receipt.json').write_text(json.dumps(receipt, indent=2))
+          print(json.dumps(receipt))
+          PY
+      - name: Save verification receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jjc-verification-receipts
+          path: |
+            jjc-access-receipt.json
+            jjc-email-setup-receipt.json
+          retention-days: 14
+          if-no-files-found: warn
