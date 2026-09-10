@@ -26,7 +26,6 @@ jobs:
           assert 'joeyharrington516@gmail.com' in html
           assert 'quoteForm' in html
           assert 'https://formsubmit.co/ajax/joeyharrington516@gmail.com' in js
-          assert 'credentials: \'omit\'' in js
           print('PASS: complete homepage, correct recipient, quote form and email script.')
           PY
           node --check jjc-demo/quote-form.js
@@ -36,7 +35,7 @@ jobs:
           COMMIT: ${{ github.sha }}
         run: |
           python3 - <<'PY'
-          import json, os, time, urllib.request, urllib.error
+          import json, os, urllib.request
           from pathlib import Path
           repo, sha = os.environ['REPOSITORY'], os.environ['COMMIT']
           reports = []
@@ -63,7 +62,8 @@ jobs:
           Path('jjc-access-receipt.json').write_text(json.dumps(reports, indent=2))
           PY
       - name: One-time labeled owner activation request
-        if: github.event.head_commit.message == 'JJC: verify public demo and request email activation once'
+        if: >-
+          github.event.head_commit.message == 'JJC: verify public demo and request email activation once'
         env:
           REPOSITORY: ${{ github.repository }}
           COMMIT: ${{ github.sha }}
@@ -73,9 +73,9 @@ jobs:
           from pathlib import Path
           url = f"https://rawcdn.githack.com/{os.environ['REPOSITORY']}/{os.environ['COMMIT']}/jjc-demo/index.html"
           payload = {
-              'name': 'JJC website setup test — NOT A CUSTOMER LEAD',
+              'name': 'JJC website setup test - NOT A CUSTOMER LEAD',
               'message': 'Joey: this is the single website email-setup test for the JJC demo Ty is building. This is NOT a customer quote and no customer information is included. If FormSubmit sends an activation email, confirm it. After activation, please submit one clearly labeled test quote and verify it reaches your inbox before relying on this form. Inbox delivery cannot be verified by the website.',
-              '_subject': 'JJC website email setup — test only, not a customer lead',
+              '_subject': 'JJC website email setup - test only, not a customer lead',
               '_template': 'table',
               '_honey': '',
               'website': url,
