@@ -15,7 +15,7 @@
 [hidden]{display:none!important}.hero-grid>*,.quote-grid>*,.fields>*,.area-grid>*,.review-grid>*,.why-grid>*,.nav .wrap>*{min-width:0}input,textarea,select{max-width:100%;width:100%;min-width:0;font-size:16px}.btn,button{font-family:inherit;cursor:pointer;white-space:normal;overflow-wrap:anywhere}.btn:disabled{opacity:.65;cursor:wait}.hero h1,.section h2,.service h3{overflow-wrap:anywhere;line-height:1.03}.hero-copy{padding-left:max(24px,calc((100vw - 1180px)/2));padding-right:38px}.hero h1{font-size:clamp(52px,6.2vw,90px)}.quote h2{font-size:clamp(40px,4.7vw,64px)}.phone{font-size:clamp(24px,3vw,34px);overflow-wrap:anywhere}.brandcopy{overflow-wrap:anywhere}.proof .wrap{border:0}.proof .wrap>div{min-width:0}.service>img{position:absolute;inset:0}.form-actions .btn{flex:1 1 auto;font-size:14px;line-height:1.35}.status[data-state=error],.status[data-state=activation]{color:#8a2017}.status[data-state=success]{color:#175432}.followup{margin-top:20px;padding-top:20px;border-top:2px solid var(--line)}.followup .btn{width:100%}.setup{background:#fff8d6;border:2px solid var(--dark);padding:18px;margin-bottom:22px}.setup p{margin-top:0;font-size:15px}.setup .btn{width:100%;font-size:14px}.honeypot{display:none!important}.form .note a{text-underline-offset:3px}.nav a:focus-visible,button:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #165ac8;outline-offset:4px}::selection{background:var(--yellow);color:var(--dark)}
 @media(max-width:900px){.hero h1{font-size:clamp(50px,12vw,90px)}.hero-copy{padding:50px 24px}.quote h2{font-size:clamp(40px,8vw,64px)}}@media(max-width:560px){.hero-copy{padding:44px 16px}.nav .wrap{gap:12px}.brand{gap:9px}.brandcopy strong{font-size:12px;line-height:1.3}.menu{padding:0 8px}.form{padding:22px 16px}.section h2{font-size:clamp(36px,11vw,58px)}.service-copy{padding:20px}.service h3{font-size:30px}.service p{font-size:15px}.hero h1{font-size:clamp(42px,12.5vw,66px)}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
-<script src="quote-form.js" defer></script>
+
 </head>
 <body>
 <div class="top"><div class="wrap"><span>Local · Family-Owned · Quincy + South Shore</span><a href="tel:+17815882531">Call or text 781-588-2531</a></div></div>
@@ -60,5 +60,184 @@
 </main>
 <footer class="foot"><div class="wrap"><div class="foot-grid"><div><span class="jjc" style="color:var(--yellow)">JJC</span><p>Local, family-owned exterior cleaning serving Quincy and the South Shore.</p></div><div><h4>Call or Text</h4><a href="tel:+17815882531">781-588-2531</a><a href="sms:+17815882531">Send a text</a></div><div><h4>Services</h4><a href="#services">House washing</a><a href="#services">Concrete + patios</a><a href="#services">Decks + fences</a><a href="#services">Roof treatments</a></div></div><p class="note" style="color:#ccd3d9">JJC website demo. Temporary sample photographs will be replaced with business-provided photos.</p></div></footer>
 <nav class="mobile" aria-label="Quick contact"><a href="tel:+17815882531">Call</a><a href="sms:+17815882531">Text</a><a href="#quote">Get Quote</a></nav>
+<script>
+'use strict';
+(() => {
+  const form = document.getElementById('quoteForm');
+  if (!form) return;
+  const endpoint = 'https://formsubmit.co/ajax/joeyharrington516@gmail.com';
+  const phone = '+17815882531';
+  const menu = document.querySelector('.menu');
+  const nav = document.querySelector('.links');
+  const send = document.getElementById('sendQuote');
+  const status = document.getElementById('status');
+  const followup = document.getElementById('quoteFollowup');
+  const fallback = document.getElementById('quoteFallback');
+  let inFlight = false;
+  let accepted = false;
+
+  const sms = (message) => {
+    const apple = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    return 'sms:' + phone + (apple ? '&' : '?') + 'body=' + encodeURIComponent(message);
+  };
+  document.querySelectorAll('[data-sms]').forEach(a => { a.href = sms(a.dataset.sms); });
+  function closeMenu() {
+    if (!menu || !nav) return;
+    nav.classList.remove('open');
+    menu.setAttribute('aria-expanded', 'false');
+    menu.setAttribute('aria-label', 'Open navigation');
+    menu.textContent = 'MENU';
+  }
+  if (menu && nav) {
+    menu.addEventListener('click', () => {
+      const open = nav.classList.toggle('open');
+      menu.setAttribute('aria-expanded', String(open));
+      menu.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+      menu.textContent = open ? 'CLOSE' : 'MENU';
+    });
+    nav.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+    window.addEventListener('resize', () => { if (innerWidth > 1100) closeMenu(); });
+  }
+  form.addEventListener('focusin', () => document.body.classList.add('form-focused'));
+  form.addEventListener('focusout', () => {
+    setTimeout(() => { if (!form.contains(document.activeElement)) document.body.classList.remove('form-focused'); }, 0);
+  });
+  function setStatus(text, state) {
+    status.textContent = text;
+    status.dataset.state = state;
+  }
+  function values() {
+    const raw = new FormData(form);
+    const data = {};
+    raw.forEach((value, key) => { if (typeof value === 'string') data[key] = value.trim(); });
+    data.submitted_at_utc = new Date().toISOString();
+    data.website = location.origin + location.pathname;
+    if (!data.email) delete data.email;
+    return data;
+  }
+  function quoteText(data) {
+    return [
+      'Hi Joey, I would like a JJC exterior-cleaning quote.',
+      'Name: ' + data.name,
+      'Phone: ' + data.phone,
+      'Property: ' + data.location,
+      'Service: ' + data.service,
+      data.email ? 'Email: ' + data.email : '',
+      data.details ? 'Details: ' + data.details : 'I can send property photos.'
+    ].filter(Boolean).join('\n');
+  }
+  // Only an explicit positive API acknowledgement counts as acceptance.
+  // Acknowledgement is not proof of arrival in the recipient's inbox.
+  async function post(data) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data),
+        credentials: 'omit',
+        signal: controller.signal
+      });
+      let body;
+      try { body = await response.json(); }
+      catch (_) { throw new Error('Unrecognized response'); }
+      const message = typeof body.message === 'string' ? body.message : '';
+      if (/activat|verif|confirm your email|check your (?:email|inbox)/i.test(message)) {
+        return { state: 'activation' };
+      }
+      if (!response.ok || !(body.success === true || body.success === 'true')) {
+        throw new Error('Submission not acknowledged');
+      }
+      return { state: 'accepted' };
+    } finally { clearTimeout(timer); }
+  }
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (inFlight || accepted || !form.reportValidity()) return;
+    const data = values();
+    if (data._honey) {
+      setStatus('This request could not be sent. Please call or text JJC.', 'error');
+      return;
+    }
+    if (!data.name || !data.phone || !data.location || !data.service) {
+      setStatus('Please complete all required fields; spaces alone are not valid.', 'error');
+      return;
+    }
+    if ((data.phone.match(/\d/g) || []).length < 7) {
+      setStatus('Please enter a phone number Joey can reach you on.', 'error');
+      document.getElementById('phone').focus();
+      return;
+    }
+    document.getElementById('textFallback').href = sms(quoteText(data));
+    fallback.hidden = true;
+    followup.hidden = true;
+    inFlight = true;
+    send.disabled = true;
+    send.textContent = 'Sending request…';
+    form.setAttribute('aria-busy', 'true');
+    setStatus('Sending your request. Please keep this page open.', 'sending');
+    try {
+      const result = await post(data);
+      if (result.state === 'activation') {
+        setStatus('Email notifications still need owner activation. Please call or text JJC instead; your details remain below.', 'activation');
+        fallback.hidden = false;
+        return;
+      }
+      accepted = true;
+      setStatus('Your request was accepted. Thank you for contacting JJC. Joey can follow up about your project.', 'success');
+      document.getElementById('textPhotos').href = sms('Hi Joey, this is ' + data.name + '. I just submitted a JJC quote request for ' + data.service + ' at ' + data.location + '. Here are my property photos.');
+      followup.hidden = false;
+      // Prevent repeat submissions and accidental edits after acceptance.
+      form.querySelectorAll('input:not([type=hidden]), select, textarea').forEach(input => { input.disabled = true; });
+    } catch (_) {
+      setStatus('We could not confirm that your request went through. Your details are still here. Retry or text JJC; retrying may duplicate an earlier request.', 'error');
+      fallback.hidden = false;
+    } finally {
+      inFlight = false;
+      form.setAttribute('aria-busy', 'false');
+      send.disabled = accepted;
+      send.textContent = accepted ? 'Request accepted' : 'Request my quote';
+    }
+  });
+  // Owner-only-by-intent setup helper, NOT a security boundary.
+  // It never sends automatically and contains no customer information.
+  const setup = document.getElementById('emailSetup');
+  if (setup && new URLSearchParams(location.search).get('setup') === '1') {
+    setup.hidden = false;
+    const button = document.getElementById('activateEmail');
+    const result = document.getElementById('setupStatus');
+    let setupSent = false;
+    button.addEventListener('click', async () => {
+      if (setupSent || button.disabled) return;
+      button.disabled = true;
+      result.textContent = 'Sending one setup test…';
+      const payload = {
+        name: 'JJC website setup test',
+        message: 'SETUP TEST — not a customer lead. Joey: confirm any FormSubmit activation email, then submit a separate test from the website and verify it arrives in your inbox before relying on notifications.',
+        _subject: 'JJC website — email setup test (not a customer quote)',
+        _template: 'table',
+        _honey: '',
+        website: location.origin + location.pathname,
+        submitted_at_utc: new Date().toISOString()
+      };
+      try {
+        const outcome = await post(payload);
+        setupSent = true;
+        button.textContent = 'Setup request submitted';
+        result.textContent = outcome.state === 'activation'
+          ? 'The service says activation is needed. Joey: check your inbox and spam folder for FormSubmit, confirm the activation email, then verify a new test quote arrives.'
+          : 'The service accepted the setup test. Joey: check your inbox and spam folder for a test or activation email. Confirm any activation request, then verify a new test quote arrives. Inbox delivery is not verified by this page.';
+      } catch (_) {
+        button.disabled = false;
+        result.textContent = 'The setup request could not be confirmed. Try again, or submit a clearly labeled setup test through the normal form below. No delivery has been verified.';
+      }
+    });
+  }
+})();
+
+</script>
 </body>
 </html>
